@@ -1,0 +1,11 @@
+data/
+logs/
+*.pyc
+__pycache__/
+.env
+*.zip
+*.fasta
+*.xml
+*.h5
+*.pt
+.ipynb_checkpoints/

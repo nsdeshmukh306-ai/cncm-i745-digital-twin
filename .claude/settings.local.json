@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s https://api.github.com/repos/SysBioChalmers/yeast-GEM/releases/latest)",
+      "Bash(python3 -c \"import json,sys; r=json.load\\(sys.stdin\\); assets=[a for a in r['assets'] if a['name'].endswith\\('.xml'\\)]; print\\(assets[0]['browser_download_url'] if assets else 'NO XML'\\); print\\('tag:', r['tag_name']\\)\")",
+      "Bash(python3 -c \"import json,sys; r=json.load\\(sys.stdin\\); [print\\(a['name'], a['browser_download_url']\\) for a in r['assets']]\")",
+      "Bash(python3 -c \"import json,sys; r=json.load\\(sys.stdin\\); print\\(json.dumps\\(r, indent=2\\)\\)\")",
+      "Bash(wget -q \"https://raw.githubusercontent.com/SysBioChalmers/yeast-GEM/main/model/yeast-GEM.xml\" -O /home/nsdeshmukh306/digital-twin/data/gem/yeast9.xml)",
+      "Bash(wget -q --show-progress 'https://api.ncbi.nlm.nih.gov/datasets/v2/genome/accession/GCA_001413085.1/download?include_annotation_type=GENOME_FASTA,GENOME_GFF&filename=sboulardii.zip' -O /home/nsdeshmukh306/digital-twin/data/genome/sboulardii.zip)",
+      "Bash(curl -s \"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=assembly&term=GCA_001413085.1&retmode=json\")",
+      "Bash(python3 -c \"import json,sys; r=json.load\\(sys.stdin\\); print\\(r['esearchresult']['idlist']\\)\")",
+      "Bash(curl -s \"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=assembly&id=559711&retmode=json\")",
+      "Bash(python3 -c ' *)",
+      "Bash(curl -s \"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=assembly&term=GCA_001413085&retmode=json\")",
+      "Bash(python3 -c \"import json,sys; r=json.load\\(sys.stdin\\); print\\(r['esearchresult']\\)\")"
+    ]
+  }
+}
