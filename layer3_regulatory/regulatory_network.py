@@ -1,10 +1,19 @@
 """
 Layer 3 — Boolean Regulatory Network for Saccharomyces boulardii CNCM I-745
 Overlays stress-response regulons onto the GEM and simulates gut transit zones.
+
+Two modes:
+  mode="boolean" : original Boolean network (upregulation of target reactions)
+  mode="eflux"   : E-Flux expression constraints (Colijn et al. 2009) using
+                   Gasch et al. 2000 fold-changes as S. boulardii proxy
+
+Model source: cncm_i745_strain_specific.xml
+  Strain-specific: HXT9/HXT11/MAL/ASP3 GPR corrected (Khatri et al. 2017)
 """
 
 import io
 import math
+import sys
 from pathlib import Path
 from contextlib import redirect_stderr
 from dataclasses import dataclass, field
@@ -14,7 +23,7 @@ from cobra.io import read_sbml_model, write_sbml_model
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 BASE      = Path("/home/nsdeshmukh306/digital-twin")
-GEM_IN    = BASE / "data/gem/cncm_i745_gut.xml"
+GEM_IN    = BASE / "data/gem/cncm_i745_strain_specific.xml"   # updated v3.0
 GEM_OUT   = BASE / "data/gem/cncm_i745_regulated.xml"
 REPORT    = BASE / "logs/layer3_report.txt"
 
@@ -363,3 +372,73 @@ with open(REPORT, "w") as fh:
 log(f"\n  Report saved → {REPORT}")
 log("")
 log("LAYER 3 COMPLETE")
+
+# ═════════════════════════════════════════════════════════════════════════════
+# E-FLUX INTEGRATION (mode="eflux") — v3.0 addition
+# ═════════════════════════════════════════════════════════════════════════════
+
+def run_eflux_gut_transit(mode: str = "boolean") -> dict:
+    """
+    Run gut transit simulation in either Boolean or E-Flux mode.
+
+    Parameters
+    ----------
+    mode : "boolean"  — original Boolean regulon upregulation
+           "eflux"    — E-Flux expression constraints (Colijn et al. 2009)
+
+    Returns
+    -------
+    dict mapping zone_name -> {growth_rate, delta, mode, ...}
+    """
+    print(f"\n[Layer 3] mode={mode}")
+
+    if mode == "boolean":
+        print("  Using Boolean regulatory network (original method)")
+        out = {}
+        for zone in GUT_ZONES:
+            act = [r for r in REGULONS if r.is_active(zone.pH, zone.temp, zone.osm, zone.ROS)]
+            zm  = base_model.copy()
+            for reg in act:
+                upregulate(zm, reg.rxn_ids, reg.effect)
+            growth = safe_fba(zm)
+            out[zone.name] = {
+                "growth_rate":     growth,
+                "delta":           growth - baseline_growth,
+                "active_regulons": [r.name for r in act],
+                "mode":            "boolean",
+            }
+        return out
+
+    elif mode == "eflux":
+        print("  Using E-Flux (Colijn et al. 2009) with Gasch et al. 2000 fold-changes")
+        import json
+        eflux_json = BASE / "data/fba_outputs/eflux_results.json"
+        if eflux_json.exists():
+            with open(eflux_json) as fh:
+                results = json.load(fh)
+            print(f"  Loaded pre-computed E-Flux results")
+            return {
+                zone: {
+                    "growth_rate":        r.get("growth_rate", 0.0),
+                    "delta":              r.get("delta_growth", 0.0),
+                    "condition":          r.get("condition", "unknown"),
+                    "modified_reactions": r.get("modified_reactions", 0),
+                    "mode":               "eflux",
+                }
+                for zone, r in results.items()
+            }
+        else:
+            print("  E-Flux results not found — run layer3_regulatory/eflux_simulator.py first")
+            return {}
+    else:
+        raise ValueError(f"Unknown mode '{mode}'. Use 'boolean' or 'eflux'.")
+
+
+if __name__ == "__main__":
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "--eflux":
+        print("\n[E-Flux mode requested via CLI]")
+        eflux_results = run_eflux_gut_transit(mode="eflux")
+        for zone, res in eflux_results.items():
+            print(f"  {zone:10s}: {res.get('growth_rate', 0):.6f} h⁻¹  "
+                  f"mode={res.get('mode')}")

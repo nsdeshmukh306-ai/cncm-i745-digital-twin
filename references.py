@@ -41,5 +41,20 @@ VALIDATED_PARAMETERS = {
     "antibiotic_resistance": True,
     "genome_size_Mbp": 11.6,
     "chromosome_count": 16,
-    "source": "McFarland 2010; Khatri et al. 2017; Edwards-Ingram et al. 2007"
+    "source": "McFarland 2010; Khatri et al. 2017; Edwards-Ingram et al. 2007",
+    "gpr_modifications": {
+        "hxt9_hxt11_removed_from_gpr": True,
+        "mal_genes_removed_from_gpr": True,
+        "asp3_removed_from_gpr": True,
+        "source": "Khatri et al. 2017 Scientific Reports",
+        "reactions_modified": 11,
+        "reactions_knocked_out": 2,
+        "model_file": "data/gem/cncm_i745_strain_specific.xml",
+    },
+    "eflux_constraints": {
+        "method": "E-Flux (Colijn et al. 2009 PLoS Comput Biol)",
+        "expression_source": "Gasch et al. 2000 MBC 11:4241 (S. cerevisiae proxy)",
+        "gene_condition_pairs": 42,
+        "mapped_to_model": 29,
+    },
 }

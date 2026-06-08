@@ -1,6 +1,8 @@
 """
-CNCM I-745 Digital Twin — FastAPI Backend v2.0.0
+CNCM I-745 Digital Twin — FastAPI Backend v3.0.0
 5-layer model with AI chat endpoint.
+v3.0 upgrades: strain-specific GEM (HXT9/HXT11/MAL/ASP3 GPR corrected) +
+E-Flux expression-constrained FBA (Gasch et al. 2000 proxy).
 """
 
 from __future__ import annotations
@@ -35,9 +37,12 @@ BASE         = Path("/home/nsdeshmukh306/digital-twin")
 GENOME_CSV   = BASE / "data/genome/genome_stats.csv"
 LAYER1_RPT   = BASE / "logs/layer1_report.txt"
 LAYER2_RPT   = BASE / "logs/layer2_report_v2.txt"
-GEM_PATH     = BASE / "data/gem/cncm_i745_gut.xml"
+GEM_PATH     = BASE / "data/gem/cncm_i745_strain_specific.xml"   # v3.0 strain-specific
 MODEL_PT     = BASE / "data/ml_datasets/surrogate_model.pt"
 SCALER_JSON  = BASE / "data/ml_datasets/surrogate_scaler.json"
+MODEL_PT_V2  = BASE / "data/ml_datasets/surrogate_model_v2.pt"
+SCALER_V2    = BASE / "data/ml_datasets/surrogate_scaler_v2.json"
+EFLUX_JSON   = BASE / "data/fba_outputs/eflux_results.json"
 
 RXN_GLUCOSE = "r_1714"
 RXN_OXYGEN  = "r_1992"
@@ -128,8 +133,11 @@ async def lifespan(app: FastAPI):
 # ── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(
     title="CNCM I-745 Digital Twin API",
-    version="2.0.0",
-    description="5-layer computational model of Saccharomyces boulardii CNCM I-745 with AI chat",
+    version="3.0.0",
+    description=(
+        "5-layer model of S. boulardii CNCM I-745. "
+        "v3.0: strain-specific GEM (HXT9/HXT11/MAL corrected) + E-Flux FBA."
+    ),
     lifespan=lifespan,
 )
 
@@ -142,10 +150,12 @@ app.add_middleware(
 
 # ── Request bodies ─────────────────────────────────────────────────────────────
 class FBARequest(BaseModel):
-    glucose:   float = Field(-1.65, le=0,  description="Glucose uptake bound (mmol/gDW/hr)")
-    oxygen:    float = Field(-2.0,  le=0,  description="Oxygen uptake bound (mmol/gDW/hr)")
-    nh4:       float = Field(-1.0,  le=0,  description="Ammonium uptake bound (mmol/gDW/hr)")
-    pi:        float = Field(-0.5,  le=0,  description="Phosphate uptake bound (mmol/gDW/hr)")
+    glucose:    float = Field(-1.65, le=0,  description="Glucose uptake bound (mmol/gDW/hr)")
+    oxygen:     float = Field(-2.0,  le=0,  description="Oxygen uptake bound (mmol/gDW/hr)")
+    nh4:        float = Field(-1.0,  le=0,  description="Ammonium uptake bound (mmol/gDW/hr)")
+    pi:         float = Field(-0.5,  le=0,  description="Phosphate uptake bound (mmol/gDW/hr)")
+    use_eflux:  bool  = Field(False,       description="Apply E-Flux expression constraints")
+    gut_zone:   str   = Field("none",      description="Gut zone for E-Flux: stomach/duodenum/ileum/colon")
 
 class SurrogateRequest(BaseModel):
     glucose:   float = Field(-1.65, le=0)
@@ -189,8 +199,9 @@ def root():
     return {
         "project":   "CNCM I-745 Digital Twin",
         "organism":  "Saccharomyces boulardii CNCM I-745",
-        "version":   "2.0.0",
+        "version":   "3.0.0",
         "status":    "online",
+        "upgrades":  ["strain-specific GEM (GPR corrected)", "E-Flux expression constraints"],
         "layers": {
             "layer1_genome":     "complete",
             "layer2_gem":        "complete",
@@ -202,7 +213,7 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "healthy", "version": "2.0.0"}
+    return {"status": "healthy", "version": "3.0.0"}
 
 # ── Genome ────────────────────────────────────────────────────────────────────
 @app.get("/genome/stats")
@@ -223,32 +234,69 @@ def genome_stats():
     }
 
 # ── FBA ───────────────────────────────────────────────────────────────────────
+def _apply_eflux_bounds(model: cobra.Model, gut_zone: str) -> dict:
+    """Apply E-Flux expression constraint scaling from pre-computed results."""
+    import re, json as _json
+    if not EFLUX_JSON.exists():
+        return {"applied": False, "reason": "eflux_results.json not found"}
+    with open(EFLUX_JSON) as fh:
+        eflux_data = _json.load(fh)
+    zone_key = gut_zone.lower()
+    if zone_key not in eflux_data:
+        return {"applied": False, "reason": f"zone '{zone_key}' not in E-Flux results"}
+    zone_res = eflux_data[zone_key]
+    # Re-apply the bound changes (scale upper bounds)
+    # Since we store old_ub/new_ub ratios, we apply them to a fresh model copy
+    modified = 0
+    for rxn_id, info in zone_res.get("flux_changes", {}).items():
+        try:
+            rxn = model.reactions.get_by_id(rxn_id)
+            rxn.upper_bound = info["new_ub"]
+            modified += 1
+        except Exception:
+            pass
+    return {
+        "applied": True,
+        "zone": zone_key,
+        "condition": zone_res.get("condition", "unknown"),
+        "modified_reactions": modified,
+        "eflux_growth_rate": zone_res.get("growth_rate", 0.0),
+    }
+
+
 @app.post("/fba/simulate")
 def fba_simulate(req: FBARequest):
     model = get_gem()
     t0 = time.perf_counter()
+    eflux_info = {}
     try:
         with model:
             model.reactions.get_by_id(RXN_GLUCOSE).lower_bound = req.glucose
             model.reactions.get_by_id(RXN_OXYGEN).lower_bound  = req.oxygen
             model.reactions.get_by_id(RXN_NH4).lower_bound     = req.nh4
             model.reactions.get_by_id(RXN_PI).lower_bound      = req.pi
+            if req.use_eflux and req.gut_zone != "none":
+                eflux_info = _apply_eflux_bounds(model, req.gut_zone)
             sol = model.optimize()
             feasible = sol.status == "optimal"
             gr = float(sol.objective_value) if feasible else 0.0
     except Exception as exc:
         raise HTTPException(500, f"FBA error: {exc}")
     delta = gr - BASELINE_GROWTH
-    return {
-        "growth_rate":        round(gr, 6),
-        "feasible":           feasible,
-        "baseline_growth":    BASELINE_GROWTH,
+    result = {
+        "growth_rate":          round(gr, 6),
+        "feasible":             feasible,
+        "baseline_growth":      BASELINE_GROWTH,
         "change_from_baseline": round(delta, 6),
-        "change_pct":         round(delta / BASELINE_GROWTH * 100, 2) if BASELINE_GROWTH else 0,
-        "inputs":             {"glucose": req.glucose, "oxygen": req.oxygen,
-                               "nh4": req.nh4, "pi": req.pi},
-        "solver_time_s":      round(time.perf_counter() - t0, 4),
+        "change_pct":           round(delta / BASELINE_GROWTH * 100, 2) if BASELINE_GROWTH else 0,
+        "model_type":           "CNCM I-745 strain-specific GEM",
+        "inputs":               {"glucose": req.glucose, "oxygen": req.oxygen,
+                                 "nh4": req.nh4, "pi": req.pi},
+        "solver_time_s":        round(time.perf_counter() - t0, 4),
     }
+    if req.use_eflux:
+        result["eflux"] = eflux_info
+    return result
 
 # ── Surrogate ────────────────────────────────────────────────────────────────
 @app.post("/surrogate/predict")
@@ -344,14 +392,27 @@ def layers_status():
         "layer2_gem": {
             "status": "complete",
             "script": "layer2_gem/gem_builder.py",
-            "outputs": ["data/gem/cncm_i745_gut.xml", "logs/layer2_report_v2.txt"],
-            "metrics": gem_metrics,
+            "outputs": ["data/gem/cncm_i745_strain_specific.xml",
+                        "data/gem/cncm_i745_gut.xml", "logs/layer2_report_v2.txt"],
+            "metrics": {
+                **gem_metrics,
+                "model_type":       "CNCM I-745 strain-specific GEM",
+                "gpr_corrections":  "HXT9/HXT11/MAL/ASP3 corrected per Khatri et al. 2017",
+            },
         },
         "layer3_regulatory": {
             "status": "complete",
             "script": "layer3_regulatory/regulatory_network.py",
-            "outputs": ["data/gem/cncm_i745_regulated.xml", "logs/layer3_report.txt"],
-            "metrics": {"regulons": 4, "gut_zones": 4},
+            "outputs": ["data/gem/cncm_i745_regulated.xml",
+                        "data/gem/cncm_i745_eflux_colon.xml",
+                        "data/fba_outputs/eflux_results.json",
+                        "logs/layer3_report.txt"],
+            "metrics": {
+                "regulons":           4,
+                "gut_zones":          4,
+                "constraint_method":  "E-Flux (Colijn et al. 2009)",
+                "expression_source":  "Gasch et al. 2000 (proxy)",
+            },
         },
         "layer4_host": {
             "status": "complete",

@@ -1,7 +1,10 @@
 """
 Layer 2 — GEM Builder for Saccharomyces boulardii CNCM I-745
-Loads Yeast9, applies CNCM I-745 strain modifications, gut environment
-constraints, FBA, pFBA, gene essentiality screen, and saves the model.
+Loads the strain-specific GEM (cncm_i745_strain_specific.xml) and applies
+gut environment constraints, FBA, pFBA, gene essentiality screen.
+
+Model is strain-specific: HXT9, HXT11, MAL11-33, ASP3 GPR rules corrected
+per Khatri et al. 2017 Scientific Reports (build_cncm_gem.py)
 """
 
 import io
@@ -21,7 +24,7 @@ from references import REFERENCES, VALIDATED_PARAMETERS
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
 BASE           = Path("/home/nsdeshmukh306/digital-twin")
-GEM_IN         = BASE / "data/gem/yeast9.xml"
+GEM_IN         = BASE / "data/gem/cncm_i745_strain_specific.xml"   # updated v3.0
 GEM_OUT        = BASE / "data/gem/cncm_i745_gut.xml"
 ESSENTIALITY   = BASE / "data/fba_outputs/gene_essentiality.csv"
 REPORT_TXT     = BASE / "logs/layer2_report_v2.txt"
