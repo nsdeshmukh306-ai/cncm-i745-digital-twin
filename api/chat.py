@@ -1,8 +1,11 @@
 import os
 import json
-import anthropic
+from openai import OpenAI
 
-client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+client = OpenAI(
+    api_key=os.environ.get("DEEPSEEK_API_KEY"),
+    base_url="https://api.deepseek.com",
+)
 
 PARAM_EXTRACTOR_SYSTEM = """You are a parameter extractor for a
 Saccharomyces boulardii CNCM I-745 digital twin simulator.
@@ -52,13 +55,15 @@ Return ONLY the JSON, no other text."""
 
 
 def extract_simulation_params(user_message: str) -> dict:
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+    response = client.chat.completions.create(
+        model="deepseek-chat",
         max_tokens=500,
-        system=PARAM_EXTRACTOR_SYSTEM,
-        messages=[{"role": "user", "content": user_message}]
+        messages=[
+            {"role": "system", "content": PARAM_EXTRACTOR_SYSTEM},
+            {"role": "user",   "content": user_message},
+        ],
     )
-    text = response.content[0].text.strip()
+    text = response.choices[0].message.content.strip()
     if text.startswith("```"):
         text = text.split("```")[1]
         if text.startswith("json"):
@@ -84,13 +89,15 @@ Validated CNCM I-745 reference values:
 
 Please interpret these results in the context of CNCM I-745 probiotic biology."""
 
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+    response = client.chat.completions.create(
+        model="deepseek-chat",
         max_tokens=1200,
-        system=SCIENTIFIC_WRITER_SYSTEM,
-        messages=[{"role": "user", "content": context}]
+        messages=[
+            {"role": "system", "content": SCIENTIFIC_WRITER_SYSTEM},
+            {"role": "user",   "content": context},
+        ],
     )
-    text = response.content[0].text.strip()
+    text = response.choices[0].message.content.strip()
     if text.startswith("```"):
         text = text.split("```")[1]
         if text.startswith("json"):
