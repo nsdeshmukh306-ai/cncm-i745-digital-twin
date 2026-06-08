@@ -1,7 +1,6 @@
 """
 Layer 5 — CNN Surrogate Model for Saccharomyces boulardii CNCM I-745
-Generates FBA training data, trains a 1D-CNN growth-rate predictor,
-evaluates it, and validates against fresh FBA runs.
+2000-sample LHS dataset, 5-fold cross-validation CNN, MC Dropout UQ.
 """
 
 import io
@@ -16,10 +15,19 @@ import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.model_selection import KFold
+from sklearn.metrics import mean_squared_error, r2_score
 import cobra
 from cobra.io import read_sbml_model
+
+try:
+    from pyDOE3 import lhs
+except ImportError:
+    from pyDOE2 import lhs
+
+import sys
+sys.path.insert(0, str(Path("/home/nsdeshmukh306/digital-twin")))
+from references import REFERENCES
 
 # ── Reproducibility ───────────────────────────────────────────────────────────
 SEED = 42
@@ -28,14 +36,14 @@ np.random.seed(SEED)
 torch.manual_seed(SEED)
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-BASE         = Path("/home/nsdeshmukh306/digital-twin")
-GEM_IN       = BASE / "data/gem/cncm_i745_regulated.xml"
-CSV_TRAIN    = BASE / "data/ml_datasets/fba_training_data.csv"
-MODEL_PT     = BASE / "data/ml_datasets/surrogate_model.pt"
-SCALER_JSON  = BASE / "data/ml_datasets/surrogate_scaler.json"
-REPORT_TXT   = BASE / "logs/layer5_report.txt"
+BASE        = Path("/home/nsdeshmukh306/digital-twin")
+GEM_IN      = BASE / "data/gem/cncm_i745_gut.xml"
+CSV_OUT     = BASE / "data/ml_datasets/fba_lhs_2000.csv"
+MODEL_PT    = BASE / "data/ml_datasets/surrogate_model.pt"
+SCALER_JSON = BASE / "data/ml_datasets/surrogate_scaler.json"
+REPORT_TXT  = BASE / "logs/layer5_report_v2.txt"
 
-SEP = "=" * 60
+SEP = "=" * 65
 log_lines: list[str] = []
 
 def log(msg: str = "") -> None:
@@ -53,354 +61,291 @@ def load_silent(path) -> cobra.Model:
     with redirect_stderr(buf):
         return read_sbml_model(str(path))
 
-# ── Exchange reaction IDs (confirmed in Layer 2/3) ────────────────────────────
-RXN_GLUCOSE = "r_1714"   # D-glucose exchange
-RXN_OXYGEN  = "r_1992"   # oxygen exchange
+RXN_GLUCOSE = "r_1714"
+RXN_OXYGEN  = "r_1992"
+RXN_NH4     = "r_1654"
+RXN_PI      = "r_2005"
 
 # ═════════════════════════════════════════════════════════════════════════════
-# 1. GENERATE FBA TRAINING DATASET
+# 1. GENERATE LHS DATASET (2000 samples)
 # ═════════════════════════════════════════════════════════════════════════════
-section("1 — GENERATE FBA TRAINING DATASET")
+section("1 — GENERATE LHS DATASET (2000 samples)")
 
 log(f"  Loading GEM: {GEM_IN}")
 base_model = load_silent(GEM_IN)
+log(f"  Model loaded: {len(base_model.reactions)} reactions, {len(base_model.genes)} genes")
 
-GLUCOSE_VALS  = [-0.5, -1.0, -2.0, -5.0, -10.0]
-OXYGEN_VALS   = [-0.5, -1.0, -2.0, -5.0, -10.0, -20.0]
-PH_FACTORS    = [0.5, 0.7, 0.9, 1.0, 1.1]
-N_TOTAL       = len(GLUCOSE_VALS) * len(OXYGEN_VALS) * len(PH_FACTORS)  # 150
+N_SAMPLES = 2000
+log(f"  Generating {N_SAMPLES}-sample Latin Hypercube Design ...")
 
-log(f"  Sweep: {len(GLUCOSE_VALS)} glucose × {len(OXYGEN_VALS)} O₂ × {len(PH_FACTORS)} pH_factor = {N_TOTAL} conditions")
+# LHS in [0,1]^4, then scale to physiological ranges
+lhs_design = lhs(4, samples=N_SAMPLES, criterion="maximin", random_state=SEED)
 
-# ── First pass: collect all flux vectors to identify top-20 variable reactions
-all_records: list[dict] = []
-all_fluxes:  list[dict] = {}   # idx → {rxn_id: flux}
+# Ranges: glucose [-0.1, -20], oxygen [0, -20], nh4 [-0.1, -5], pi [-0.1, -2]
+glucose_vals = -0.1 + lhs_design[:, 0] * (-20.0 - (-0.1))   # [-0.1, -20]
+oxygen_vals  = 0.0  + lhs_design[:, 1] * (-20.0 - 0.0)       # [0, -20]
+nh4_vals     = -0.1 + lhs_design[:, 2] * (-5.0  - (-0.1))    # [-0.1, -5]
+pi_vals      = -0.1 + lhs_design[:, 3] * (-2.0  - (-0.1))    # [-0.1, -2]
 
-log("  Running FBA sweep …")
+log(f"  Running {N_SAMPLES} FBA simulations ...")
+records = []
 n_feasible = 0
-for i, glc in enumerate(GLUCOSE_VALS):
-    for j, o2 in enumerate(OXYGEN_VALS):
-        for k, ph in enumerate(PH_FACTORS):
-            with base_model:
-                base_model.reactions.get_by_id(RXN_GLUCOSE).lower_bound = glc
-                base_model.reactions.get_by_id(RXN_OXYGEN).lower_bound  = o2
-                # pH factor: scale all exchange lower bounds (excluding glucose/O2)
-                for rxn in base_model.exchanges:
-                    if rxn.id not in (RXN_GLUCOSE, RXN_OXYGEN):
-                        if rxn.lower_bound < 0:
-                            rxn.lower_bound = rxn.lower_bound * ph
-                sol = base_model.optimize()
-                gr  = sol.objective_value if sol.status == "optimal" else 0.0
-                if sol.status == "optimal":
-                    n_feasible += 1
-                    all_fluxes[len(all_records)] = dict(sol.fluxes)
-                else:
-                    all_fluxes[len(all_records)] = {}
-            all_records.append({
-                "glucose_uptake": glc,
-                "oxygen_uptake":  o2,
-                "pH_factor":      ph,
-                "growth_rate":    gr,
-            })
 
-log(f"  Feasible solutions : {n_feasible} / {N_TOTAL}")
+for i in range(N_SAMPLES):
+    if i % 200 == 0:
+        log(f"    Progress: {i}/{N_SAMPLES} ({100*i//N_SAMPLES}%)")
+    glc = float(glucose_vals[i])
+    o2  = float(oxygen_vals[i])
+    nh4 = float(nh4_vals[i])
+    pi  = float(pi_vals[i])
+    with base_model:
+        base_model.reactions.get_by_id(RXN_GLUCOSE).lower_bound = glc
+        base_model.reactions.get_by_id(RXN_OXYGEN).lower_bound  = o2
+        base_model.reactions.get_by_id(RXN_NH4).lower_bound     = nh4
+        base_model.reactions.get_by_id(RXN_PI).lower_bound      = pi
+        sol = base_model.optimize()
+        feasible = sol.status == "optimal"
+        gr = float(sol.objective_value) if feasible else 0.0
+    if feasible:
+        n_feasible += 1
+    records.append({
+        "glucose": glc, "oxygen": o2, "nh4": nh4, "pi": pi,
+        "growth_rate": gr, "feasible": int(feasible)
+    })
 
-# ── Identify top-20 most variable reactions (std dev across feasible runs) ──
-feasible_ids = [i for i, r in enumerate(all_records) if r["growth_rate"] > 0]
-if feasible_ids:
-    rxn_ids = list(next(v for v in all_fluxes.values() if v).keys())
-    flux_matrix = np.zeros((len(feasible_ids), len(rxn_ids)))
-    for row, idx in enumerate(feasible_ids):
-        fv = all_fluxes[idx]
-        for col, rid in enumerate(rxn_ids):
-            flux_matrix[row, col] = fv.get(rid, 0.0)
-    stds = flux_matrix.std(axis=0)
-    top20_idx  = np.argsort(stds)[-20:][::-1]
-    top20_rxns = [rxn_ids[i] for i in top20_idx]
-    top20_names = [base_model.reactions.get_by_id(r).name[:35] for r in top20_rxns]
-else:
-    top20_rxns = []
-    top20_names = []
-
-log(f"  Top-20 variable reactions identified: {len(top20_rxns)}")
-for rid, rn in zip(top20_rxns[:5], top20_names[:5]):
-    log(f"    {rid}  {rn}")
-
-# ── Write CSV ─────────────────────────────────────────────────────────────────
-CSV_TRAIN.parent.mkdir(parents=True, exist_ok=True)
-fieldnames = ["glucose_uptake", "oxygen_uptake", "pH_factor", "growth_rate"] + top20_rxns
-with open(CSV_TRAIN, "w", newline="") as fh:
-    writer = csv.DictWriter(fh, fieldnames=fieldnames)
-    writer.writeheader()
-    for idx, rec in enumerate(all_records):
-        row = dict(rec)
-        fv  = all_fluxes.get(idx, {})
-        for rid in top20_rxns:
-            row[rid] = fv.get(rid, 0.0)
-        writer.writerow(row)
-
-log(f"\n  Dataset saved → {CSV_TRAIN}")
-log(f"  Shape          : {len(all_records)} rows × {len(fieldnames)} columns")
-
-gr_vals = [r["growth_rate"] for r in all_records]
-log(f"  Growth rate    : min={min(gr_vals):.4f}  max={max(gr_vals):.4f}  "
+gr_vals = [r["growth_rate"] for r in records]
+log(f"\n  Dataset shape : {len(records)} rows × 6 columns")
+log(f"  Feasible      : {n_feasible} / {N_SAMPLES}")
+log(f"  Growth rate   : min={min(gr_vals):.4f}  max={max(gr_vals):.4f}  "
     f"mean={np.mean(gr_vals):.4f}  std={np.std(gr_vals):.4f}")
-log(f"  Zero-growth    : {sum(1 for g in gr_vals if g == 0.0)} / {len(gr_vals)}")
+
+CSV_OUT.parent.mkdir(parents=True, exist_ok=True)
+with open(CSV_OUT, "w", newline="") as fh:
+    writer = csv.DictWriter(fh, fieldnames=["glucose","oxygen","nh4","pi","growth_rate","feasible"])
+    writer.writeheader()
+    writer.writerows(records)
+log(f"  Saved → {CSV_OUT}")
 
 # ═════════════════════════════════════════════════════════════════════════════
-# 2. BUILD & TRAIN CNN SURROGATE MODEL
+# 2. CNN SURROGATE WITH 5-FOLD CROSS VALIDATION
 # ═════════════════════════════════════════════════════════════════════════════
-section("2 — BUILD & TRAIN CNN SURROGATE MODEL")
+section("2 — CNN SURROGATE WITH 5-FOLD CROSS VALIDATION")
 
-# ── Features: [glucose, oxygen, pH_factor] → normalise ────────────────────
-X_raw = np.array([[r["glucose_uptake"], r["oxygen_uptake"], r["pH_factor"]]
-                  for r in all_records], dtype=np.float32)
-y_raw = np.array([r["growth_rate"] for r in all_records], dtype=np.float32)
+X_raw = np.array([[r["glucose"], r["oxygen"], r["nh4"], r["pi"]]
+                  for r in records], dtype=np.float32)
+y_raw = np.array([r["growth_rate"] for r in records], dtype=np.float32)
 
 feat_mean = X_raw.mean(axis=0)
 feat_std  = X_raw.std(axis=0) + 1e-8
 X_norm    = (X_raw - feat_mean) / feat_std
 
-scaler_params = {
-    "feature_mean": feat_mean.tolist(),
-    "feature_std":  feat_std.tolist(),
-    "feature_names": ["glucose_uptake", "oxygen_uptake", "pH_factor"],
-}
-
-X_tr, X_te, y_tr, y_te = train_test_split(
-    X_norm, y_raw, test_size=0.20, random_state=SEED
-)
-
-log(f"  Train samples : {len(X_tr)}   Test samples : {len(X_te)}")
+log(f"  Features: glucose, oxygen, nh4, pi (4 inputs)")
 log(f"  Feature means : {feat_mean.tolist()}")
-log(f"  Feature stds  : {[f'{v:.4f}' for v in feat_std.tolist()]}")
+log(f"  Feature stds  : {feat_std.tolist()}")
 
-# ── CNN architecture ──────────────────────────────────────────────────────────
-REPEAT  = 8    # each feature repeated 8× → length-24 sequence
-SEQ_LEN = 3 * REPEAT   # 24
+# CNN architecture: 4 features → expand to (32, 1) sequence
+SEQ_LEN = 32
 
 class GrowthCNN(nn.Module):
     def __init__(self):
         super().__init__()
-        self.conv1 = nn.Conv1d(1, 32, kernel_size=3, padding=1)
-        self.conv2 = nn.Conv1d(32, 64, kernel_size=3, padding=1)
-        self.conv3 = nn.Conv1d(64, 32, kernel_size=3, padding=1)
-        self.fc1   = nn.Linear(32 * SEQ_LEN, 128)
-        self.drop  = nn.Dropout(0.2)
-        self.fc2   = nn.Linear(128, 64)
-        self.fc3   = nn.Linear(64, 1)
+        self.conv1 = nn.Conv1d(1, 64, kernel_size=3, padding=1)
+        self.bn1   = nn.BatchNorm1d(64)
+        self.conv2 = nn.Conv1d(64, 128, kernel_size=3, padding=1)
+        self.bn2   = nn.BatchNorm1d(128)
+        self.conv3 = nn.Conv1d(128, 64, kernel_size=3, padding=1)
+        self.bn3   = nn.BatchNorm1d(64)
+        self.fc1   = nn.Linear(64 * SEQ_LEN, 256)
+        self.drop1 = nn.Dropout(0.3)
+        self.fc2   = nn.Linear(256, 128)
+        self.drop2 = nn.Dropout(0.2)
+        self.fc3   = nn.Linear(128, 1)
         self.relu  = nn.ReLU()
 
     def forward(self, x):
-        # x: (B, 3)  →  expand  →  (B, 1, 24)
-        x = x.unsqueeze(1).repeat(1, 1, REPEAT).reshape(x.size(0), 1, SEQ_LEN)
-        x = self.relu(self.conv1(x))
-        x = self.relu(self.conv2(x))
-        x = self.relu(self.conv3(x))
+        # x: (B, 4) → repeat to (B, 1, 32)
+        x = x.unsqueeze(1).repeat(1, 1, SEQ_LEN // x.size(1)).reshape(x.size(0), 1, SEQ_LEN)
+        x = self.relu(self.bn1(self.conv1(x)))
+        x = self.relu(self.bn2(self.conv2(x)))
+        x = self.relu(self.bn3(self.conv3(x)))
         x = x.flatten(1)
         x = self.relu(self.fc1(x))
-        x = self.drop(x)
+        x = self.drop1(x)
         x = self.relu(self.fc2(x))
+        x = self.drop2(x)
         return self.fc3(x).squeeze(1)
 
-model_nn = GrowthCNN()
-log(f"\n  Architecture:")
-log(f"    Input → repeat(8×) → (1, 24) sequence")
-log(f"    Conv1d(1→32,k=3) → Conv1d(32→64,k=3) → Conv1d(64→32,k=3)")
-log(f"    Flatten → Linear(768→128) → Dropout(0.2) → Linear(128→64) → Linear(64→1)")
-n_params = sum(p.numel() for p in model_nn.parameters())
-log(f"    Parameters: {n_params:,}")
+def train_model(X_tr, y_tr, epochs=150, batch_size=32):
+    m = GrowthCNN()
+    opt = torch.optim.Adam(m.parameters(), lr=0.001)
+    loss_fn = nn.MSELoss()
+    ds = TensorDataset(torch.from_numpy(X_tr), torch.from_numpy(y_tr))
+    loader = DataLoader(ds, batch_size=batch_size, shuffle=True)
+    m.train()
+    for epoch in range(epochs):
+        for xb, yb in loader:
+            opt.zero_grad()
+            loss = loss_fn(m(xb), yb)
+            loss.backward()
+            opt.step()
+    return m
 
-# ── DataLoaders ───────────────────────────────────────────────────────────────
-def make_loader(X, y, batch_size=16, shuffle=True):
-    ds = TensorDataset(torch.from_numpy(X), torch.from_numpy(y))
-    return DataLoader(ds, batch_size=batch_size, shuffle=shuffle)
+n_params = sum(p.numel() for p in GrowthCNN().parameters())
+log(f"\n  Architecture: 4 → repeat(8×) → (1,32) → Conv64→128→64 → FC256→128→1")
+log(f"  BatchNorm1d after each conv, Dropout(0.3/0.2) after FC")
+log(f"  Parameters: {n_params:,}")
 
-train_loader = make_loader(X_tr, y_tr)
-test_loader  = make_loader(X_te, y_te, shuffle=False)
+kf = KFold(n_splits=5, shuffle=True, random_state=SEED)
+fold_r2_list: list[float] = []
+fold_rmse_list: list[float] = []
 
-# ── Training ──────────────────────────────────────────────────────────────────
-optimizer = torch.optim.Adam(model_nn.parameters(), lr=1e-3)
-loss_fn   = nn.MSELoss()
+log(f"\n  5-Fold Cross Validation (150 epochs, batch=32, Adam lr=0.001):")
+log(f"  {'Fold':>4}  {'R²':>8}  {'RMSE':>10}")
+log(f"  {'-'*4}  {'-'*8}  {'-'*10}")
 
-EPOCHS     = 100
-BATCH_SIZE = 16
+for fold_idx, (tr_idx, val_idx) in enumerate(kf.split(X_norm)):
+    X_tr_f = X_norm[tr_idx]
+    y_tr_f = y_raw[tr_idx]
+    X_val_f = X_norm[val_idx]
+    y_val_f = y_raw[val_idx]
 
-log(f"\n  Training: {EPOCHS} epochs, batch={BATCH_SIZE}, lr=0.001, Adam+MSELoss")
-log(f"  {'Epoch':>6}  {'Train Loss':>12}  {'Test Loss':>12}")
-log(f"  {'-'*6}  {'-'*12}  {'-'*12}")
-
-train_losses: list[float] = []
-test_losses:  list[float] = []
-
-for epoch in range(1, EPOCHS + 1):
-    model_nn.train()
-    ep_loss = 0.0
-    for xb, yb in train_loader:
-        optimizer.zero_grad()
-        pred = model_nn(xb)
-        loss = loss_fn(pred, yb)
-        loss.backward()
-        optimizer.step()
-        ep_loss += loss.item() * len(xb)
-    ep_loss /= len(X_tr)
-    train_losses.append(ep_loss)
-
-    model_nn.eval()
+    fold_model = train_model(X_tr_f, y_tr_f, epochs=150)
+    fold_model.eval()
     with torch.no_grad():
-        te_loss = sum(
-            loss_fn(model_nn(xb), yb).item() * len(xb)
-            for xb, yb in test_loader
-        ) / len(X_te)
-    test_losses.append(te_loss)
+        y_pred_f = fold_model(torch.from_numpy(X_val_f)).numpy()
 
-    if epoch % 10 == 0:
-        log(f"  {epoch:>6}  {ep_loss:>12.6f}  {te_loss:>12.6f}")
+    fold_r2   = r2_score(y_val_f, y_pred_f)
+    fold_rmse = math.sqrt(mean_squared_error(y_val_f, y_pred_f))
+    fold_r2_list.append(fold_r2)
+    fold_rmse_list.append(fold_rmse)
+    log(f"  {fold_idx+1:>4}  {fold_r2:>8.4f}  {fold_rmse:>10.6f}")
 
-# ═════════════════════════════════════════════════════════════════════════════
-# 3. EVALUATE SURROGATE
-# ═════════════════════════════════════════════════════════════════════════════
-section("3 — EVALUATE SURROGATE")
+cv_r2_mean = float(np.mean(fold_r2_list))
+cv_r2_std  = float(np.std(fold_r2_list))
+log(f"\n  Mean R² ± std : {cv_r2_mean:.4f} ± {cv_r2_std:.4f}")
+log(f"  Mean RMSE     : {np.mean(fold_rmse_list):.6f}")
 
-model_nn.eval()
+# Final model on full dataset
+log(f"\n  Training final model on full dataset (200 epochs) ...")
+final_model = train_model(X_norm, y_raw, epochs=200, batch_size=32)
+final_model.eval()
+
 with torch.no_grad():
-    y_pred_te = model_nn(torch.from_numpy(X_te)).numpy()
-
-mse  = mean_squared_error(y_te, y_pred_te)
-rmse = math.sqrt(mse)
-mae  = mean_absolute_error(y_te, y_pred_te)
-r2   = r2_score(y_te, y_pred_te)
-
-log(f"  Test-set metrics:")
-log(f"    MSE  : {mse:.6f}")
-log(f"    RMSE : {rmse:.6f}")
-log(f"    MAE  : {mae:.6f}")
-log(f"    R²   : {r2:.4f}")
-
-log(f"\n  Sample predictions (10 from test set):")
-log(f"  {'#':>3}  {'Actual':>10}  {'Predicted':>10}  {'Error':>10}")
-log(f"  {'-'*3}  {'-'*10}  {'-'*10}  {'-'*10}")
-for i in range(min(10, len(y_te))):
-    act  = y_te[i]
-    pred = float(y_pred_te[i])
-    err  = pred - act
-    log(f"  {i+1:>3}  {act:>10.6f}  {pred:>10.6f}  {err:>+10.6f}")
+    y_pred_all = final_model(torch.from_numpy(X_norm)).numpy()
+full_r2   = r2_score(y_raw, y_pred_all)
+full_rmse = math.sqrt(mean_squared_error(y_raw, y_pred_all))
+log(f"  Full-dataset R² : {full_r2:.4f}   RMSE : {full_rmse:.6f}")
 
 # ═════════════════════════════════════════════════════════════════════════════
-# 4. VALIDATE SURROGATE VS FBA
+# 3. MC DROPOUT UNCERTAINTY QUANTIFICATION
 # ═════════════════════════════════════════════════════════════════════════════
-section("4 — VALIDATE SURROGATE vs FBA")
+section("3 — MC DROPOUT UNCERTAINTY QUANTIFICATION")
 
-N_VALIDATE = 20
-rng = np.random.default_rng(SEED + 1)
-val_glc = rng.uniform(-10.0, -0.5, N_VALIDATE)
-val_o2  = rng.uniform(-20.0, -0.5, N_VALIDATE)
-val_ph  = rng.uniform(0.5, 1.1, N_VALIDATE)
+N_MC = 50
 
-log(f"  Running {N_VALIDATE} random validation conditions …")
-log(f"\n  {'#':>3}  {'Glucose':>8}  {'O2':>7}  {'pHf':>5}  "
-    f"{'FBA_growth':>12}  {'CNN_growth':>12}  {'Err%':>8}")
-log(f"  {'-'*3}  {'-'*8}  {'-'*7}  {'-'*5}  {'-'*12}  {'-'*12}  {'-'*8}")
-
-val_errors: list[float] = []
-for i in range(N_VALIDATE):
-    glc_v = float(val_glc[i])
-    o2_v  = float(val_o2[i])
-    ph_v  = float(val_ph[i])
-
-    # FBA
-    with base_model:
-        base_model.reactions.get_by_id(RXN_GLUCOSE).lower_bound = glc_v
-        base_model.reactions.get_by_id(RXN_OXYGEN).lower_bound  = o2_v
-        for rxn in base_model.exchanges:
-            if rxn.id not in (RXN_GLUCOSE, RXN_OXYGEN):
-                if rxn.lower_bound < 0:
-                    rxn.lower_bound = rxn.lower_bound * ph_v
-        sol = base_model.optimize()
-        fba_gr = sol.objective_value if sol.status == "optimal" else 0.0
-
-    # Surrogate
-    feat = np.array([[glc_v, o2_v, ph_v]], dtype=np.float32)
-    feat_n = (feat - feat_mean) / feat_std
-    model_nn.eval()
+def mc_predict(model, X_tensor, n_passes=50):
+    model.train()  # enable dropout at inference
+    preds = []
     with torch.no_grad():
-        cnn_gr = float(model_nn(torch.from_numpy(feat_n)).item())
-    cnn_gr = max(0.0, cnn_gr)   # growth cannot be negative
+        for _ in range(n_passes):
+            preds.append(model(X_tensor).numpy())
+    model.eval()
+    preds = np.stack(preds, axis=0)
+    return preds.mean(axis=0), preds.std(axis=0)
 
-    if fba_gr > 0:
-        err_pct = abs(cnn_gr - fba_gr) / fba_gr * 100
-    else:
-        err_pct = abs(cnn_gr) * 100
-    val_errors.append(err_pct)
+# Use first 5 test samples for illustration
+test_X = torch.from_numpy(X_norm[:5])
+mc_mean, mc_std = mc_predict(final_model, test_X, n_passes=N_MC)
 
-    log(f"  {i+1:>3}  {glc_v:>8.2f}  {o2_v:>7.2f}  {ph_v:>5.2f}  "
-        f"{fba_gr:>12.6f}  {cnn_gr:>12.6f}  {err_pct:>7.1f}%")
-
-log(f"\n  Mean absolute error% : {np.mean(val_errors):.2f}%")
-log(f"  Max absolute error%  : {np.max(val_errors):.2f}%")
+log(f"  MC Dropout: {N_MC} forward passes per sample")
+log(f"  95% CI = mean ± 1.96*std")
+log(f"\n  {'#':>3}  {'True':>8}  {'MC Mean':>10}  {'95% CI Lower':>12}  {'95% CI Upper':>12}")
+log(f"  {'-'*3}  {'-'*8}  {'-'*10}  {'-'*12}  {'-'*12}")
+for i in range(5):
+    ci_lo = mc_mean[i] - 1.96 * mc_std[i]
+    ci_hi = mc_mean[i] + 1.96 * mc_std[i]
+    log(f"  {i+1:>3}  {y_raw[i]:>8.4f}  {mc_mean[i]:>10.4f}  {max(0, ci_lo):>12.4f}  {ci_hi:>12.4f}")
 
 # ═════════════════════════════════════════════════════════════════════════════
-# 5. SAVE MODEL
+# 4. SAVE MODEL AND SCALER
 # ═════════════════════════════════════════════════════════════════════════════
-section("5 — SAVE MODEL & REPORT")
+section("4 — SAVE MODEL & SCALER")
 
 MODEL_PT.parent.mkdir(parents=True, exist_ok=True)
-torch.save(model_nn.state_dict(), MODEL_PT)
-log(f"  Model weights → {MODEL_PT}  ({MODEL_PT.stat().st_size:,} bytes)")
+torch.save(final_model.state_dict(), MODEL_PT)
+log(f"  Model saved → {MODEL_PT}  ({MODEL_PT.stat().st_size:,} bytes)")
 
+scaler_data = {
+    "feature_names": ["glucose", "oxygen", "nh4", "pi"],
+    "mean": feat_mean.tolist(),
+    "std": feat_std.tolist(),
+    "feature_mean": feat_mean.tolist(),
+    "feature_std": feat_std.tolist(),
+    "seq_len": SEQ_LEN,
+    "cross_val_r2_mean": cv_r2_mean,
+    "cross_val_r2_std": cv_r2_std,
+    "full_r2": full_r2,
+    "full_rmse": full_rmse,
+    "n_samples": N_SAMPLES,
+    "n_feasible": n_feasible,
+}
 with open(SCALER_JSON, "w") as fh:
-    json.dump(scaler_params, fh, indent=2)
-log(f"  Scaler params → {SCALER_JSON}")
+    json.dump(scaler_data, fh, indent=2)
+log(f"  Scaler saved → {SCALER_JSON}")
 
-# ── Full report ───────────────────────────────────────────────────────────────
-REPORT_TXT.parent.mkdir(parents=True, exist_ok=True)
-report_header = [
+# ═════════════════════════════════════════════════════════════════════════════
+# 5. SAVE REPORT
+# ═════════════════════════════════════════════════════════════════════════════
+section("5 — SAVE REPORT")
+
+report_lines = [
     SEP,
-    "LAYER 5 SURROGATE MODEL REPORT",
+    "LAYER 5 SURROGATE MODEL REPORT v2",
     "Organism : Saccharomyces boulardii CNCM I-745",
-    "Input GEM: cncm_i745_regulated.xml",
+    "Input GEM: cncm_i745_gut.xml",
     SEP,
     "",
     "── Dataset ──",
-    f"  Training samples  : {len(all_records)}  (150 FBA sweep conditions)",
-    f"  Feasible          : {n_feasible}",
-    f"  Growth range      : {min(gr_vals):.4f} – {max(gr_vals):.4f} h⁻¹",
-    f"  Saved to          : {CSV_TRAIN}",
+    f"  Samples       : {N_SAMPLES} (Latin Hypercube Sampling)",
+    f"  Feasible FBA  : {n_feasible} / {N_SAMPLES}",
+    f"  Features      : glucose, oxygen, nh4, pi",
+    f"  Growth range  : {min(gr_vals):.4f} – {max(gr_vals):.4f} h⁻¹",
+    f"  Saved to      : {CSV_OUT}",
     "",
     "── CNN Architecture ──",
-    f"  Expand 3 features × 8 repeats → (1, 24) 1D sequence",
-    f"  Conv1d(1→32) → Conv1d(32→64) → Conv1d(64→32) → FC(768→128→64→1)",
-    f"  Trainable parameters: {n_params:,}",
+    f"  Input: 4 features → expand(8×) → (1, 32) sequence",
+    f"  Conv1d(1→64)→BN→ReLU → Conv1d(64→128)→BN→ReLU → Conv1d(128→64)→BN→ReLU",
+    f"  Flatten → Linear(2048→256)→ReLU→Dropout(0.3)",
+    f"  → Linear(256→128)→ReLU→Dropout(0.2) → Linear(128→1)",
+    f"  Parameters: {n_params:,}",
     "",
-    "── Training ──",
-    f"  Epochs: {EPOCHS}  |  Batch: {BATCH_SIZE}  |  Optimizer: Adam(lr=0.001)",
-    f"  Final train loss : {train_losses[-1]:.6f}",
-    f"  Final test  loss : {test_losses[-1]:.6f}",
-    "",
-    "── Test-Set Metrics ──",
-    f"  MSE  : {mse:.6f}",
-    f"  RMSE : {rmse:.6f}",
-    f"  MAE  : {mae:.6f}",
-    f"  R²   : {r2:.4f}",
-    "",
-    "── Validation vs FBA (20 random conditions) ──",
-    f"  Mean |error%| : {np.mean(val_errors):.2f}%",
-    f"  Max  |error%| : {np.max(val_errors):.2f}%",
-    "",
-    "── Output Files ──",
-    f"  Training data  : {CSV_TRAIN}",
-    f"  Model weights  : {MODEL_PT}",
-    f"  Scaler params  : {SCALER_JSON}",
-    f"  This report    : {REPORT_TXT}",
-    "",
-    SEP,
-    "",
+    "── 5-Fold Cross Validation ──",
 ]
+for i, (r2, rmse) in enumerate(zip(fold_r2_list, fold_rmse_list)):
+    report_lines.append(f"  Fold {i+1}: R²={r2:.4f}  RMSE={rmse:.6f}")
+report_lines += [
+    f"  Mean R² : {cv_r2_mean:.4f} ± {cv_r2_std:.4f}",
+    f"  Mean RMSE: {np.mean(fold_rmse_list):.6f}",
+    "",
+    "── Final Model (200 epochs, full dataset) ──",
+    f"  R²   : {full_r2:.4f}",
+    f"  RMSE : {full_rmse:.6f}",
+    "",
+    "── MC Dropout UQ ──",
+    f"  Passes: {N_MC}  |  95% CI = mean ± 1.96*std",
+    "",
+    "── References ──",
+]
+for ref in REFERENCES["layer5_surrogate"]:
+    report_lines.append(f"  • {ref}")
+report_lines += ["", SEP]
+
+REPORT_TXT.parent.mkdir(parents=True, exist_ok=True)
 with open(REPORT_TXT, "w") as fh:
-    fh.write("\n".join(report_header))
-    fh.write("\nFull console output:\n")
+    fh.write("\n".join(report_lines))
+    fh.write("\n\nFull console output:\n")
     fh.write("\n".join(log_lines))
 
-log(f"  Report → {REPORT_TXT}")
+log(f"  Report saved → {REPORT_TXT}")
 log("")
-log("LAYER 5 COMPLETE")
+log("LAYER 5 v2 COMPLETE")
