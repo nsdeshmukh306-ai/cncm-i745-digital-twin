@@ -1,0 +1,14 @@
+# Pin the dashboard to a light base theme so body text defaults to dark.
+# Without this, Streamlit may pick a dark base (system-dependent), rendering
+# the explicit white card backgrounds with white text. The CSS in
+# dashboard/app.py also forces these colours; this is the root-cause backstop.
+[theme]
+base = "light"
+primaryColor = "#00B4D8"
+backgroundColor = "#F8F9FA"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#1A1A2E"
+font = "sans serif"
+
+[server]
+headless = true
