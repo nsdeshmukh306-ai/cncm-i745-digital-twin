@@ -2,8 +2,12 @@ import os
 import json
 from openai import OpenAI
 
+# Construct with a placeholder when the key is absent so that *import never
+# fails* (the API would otherwise crash on startup if DEEPSEEK_API_KEY were
+# unset). Real calls use the env key in production; with the placeholder they
+# fail gracefully and are caught by the /chat fallback handler.
 client = OpenAI(
-    api_key=os.environ.get("DEEPSEEK_API_KEY"),
+    api_key=os.environ.get("DEEPSEEK_API_KEY") or "sk-deepseek-key-not-set",
     base_url="https://api.deepseek.com",
 )
 
@@ -71,8 +75,27 @@ def extract_simulation_params(user_message: str) -> dict:
     return json.loads(text.strip())
 
 
+def build_scientific_context(growth_rate=None, gut_zone="none", surrogate_r2=None,
+                             barrier_score=None, nfkb_suppression_pct=None) -> str:
+    """Render the live-simulation-state block injected into the system prompt.
+
+    Grounds the assistant in the current digital-twin state so multi-turn
+    answers stay consistent with the most recent simulation.
+    """
+    return (
+        "LIVE SIMULATION STATE (ground all answers in these values):\n"
+        f"- Current growth rate: {growth_rate if growth_rate is not None else 'N/A'} h⁻¹\n"
+        f"- Active gut zone: {gut_zone}\n"
+        f"- CNN surrogate cross-validated R²: {surrogate_r2 if surrogate_r2 is not None else 'N/A'}\n"
+        f"- Epithelial barrier-integrity score: {barrier_score if barrier_score is not None else 'N/A'}\n"
+        f"- NF-κB suppression vs control: {nfkb_suppression_pct if nfkb_suppression_pct is not None else 'N/A'}%\n"
+    )
+
+
 def generate_scientific_response(simulation_results: dict,
-                                  user_message: str, params: dict) -> dict:
+                                  user_message: str, params: dict,
+                                  history: list | None = None,
+                                  scientific_context: str | None = None) -> dict:
     context = f"""User query: {user_message}
 
 Simulation parameters used:
@@ -89,13 +112,23 @@ Validated CNCM I-745 reference values:
 
 Please interpret these results in the context of CNCM I-745 probiotic biology."""
 
+    system_prompt = SCIENTIFIC_WRITER_SYSTEM
+    if scientific_context:
+        system_prompt = SCIENTIFIC_WRITER_SYSTEM + "\n\n" + scientific_context
+
+    messages = [{"role": "system", "content": system_prompt}]
+    # Prior multi-turn dialogue, if supplied ({role, content} dicts).
+    for turn in (history or []):
+        role = turn.get("role")
+        content = turn.get("content")
+        if role in ("user", "assistant") and content:
+            messages.append({"role": role, "content": str(content)})
+    messages.append({"role": "user", "content": context})
+
     response = client.chat.completions.create(
         model="deepseek-chat",
         max_tokens=1200,
-        messages=[
-            {"role": "system", "content": SCIENTIFIC_WRITER_SYSTEM},
-            {"role": "user",   "content": context},
-        ],
+        messages=messages,
     )
     text = response.choices[0].message.content.strip()
     if text.startswith("```"):
@@ -103,3 +136,35 @@ Please interpret these results in the context of CNCM I-745 probiotic biology.""
         if text.startswith("json"):
             text = text[4:]
     return json.loads(text.strip())
+
+
+EXPLAIN_FLUX_SYSTEM = """You are a metabolic-modelling expert explaining a single
+reaction from the Saccharomyces boulardii CNCM I-745 genome-scale metabolic model
+to a scientifically literate but non-specialist reader.
+Given a reaction's ID, name, current flux value and whether its flux changed under
+the active gut condition, write a concise plain-English explanation (3-5 sentences)
+covering: (1) the reaction's biological role/pathway, (2) what the current flux
+value means (direction and magnitude, units mmol gDW⁻¹ hr⁻¹), and (3) the
+significance of any change under the gut condition. Be accurate; do not invent
+numbers. Return plain text, no JSON, no markdown headers."""
+
+
+def explain_reaction(reaction_id: str, reaction_name: str, flux_value: float,
+                     changed: bool, gut_zone: str, baseline_flux: float) -> str:
+    """Return a plain-English explanation of a reaction's biological role/flux."""
+    prompt = (
+        f"Reaction ID: {reaction_id}\n"
+        f"Reaction name: {reaction_name}\n"
+        f"Current flux (active condition '{gut_zone}'): {flux_value:.6f} mmol gDW⁻¹ hr⁻¹\n"
+        f"Baseline flux (glucose-limited): {baseline_flux:.6f} mmol gDW⁻¹ hr⁻¹\n"
+        f"Flux changed under gut condition: {'yes' if changed else 'no'}\n"
+    )
+    response = client.chat.completions.create(
+        model="deepseek-chat",
+        max_tokens=400,
+        messages=[
+            {"role": "system", "content": EXPLAIN_FLUX_SYSTEM},
+            {"role": "user", "content": prompt},
+        ],
+    )
+    return response.choices[0].message.content.strip()
