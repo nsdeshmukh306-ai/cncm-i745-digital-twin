@@ -10,6 +10,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.136-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.58-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+[![Version 4.0](https://img.shields.io/badge/Version-4.0.0-1B3A6B?style=for-the-badge)](docs/METHODS.md)
 
 **A five-layer, genome-to-phenotype digital twin integrating constraint-based metabolic modelling, expression-constrained flux analysis, ODE pharmacodynamics, and a CNN surrogate — with a FastAPI backend and Streamlit dashboard.**
 
@@ -24,6 +25,44 @@
 *Saccharomyces boulardii* CNCM I-745 is the only probiotic yeast licensed in more than 100 countries for the prevention and treatment of antibiotic-associated diarrhoea and *Clostridioides difficile*-associated disease. Despite its clinical significance, mechanistic models linking its genome to gut-level host outcomes are absent from the literature.
 
 This project constructs a hierarchical computational digital twin in which each layer is grounded in published data and peer-reviewed methods. The strain-specific genome-scale metabolic model (GEM) is derived from the Yeast9 consensus reconstruction with GPR corrections informed by comparative genomics; expression constraints from Gasch *et al.* 2000 are applied via the E-Flux algorithm; host-microbe pharmacodynamics are captured through Michaelis-Menten ODEs for CAMP factor / toxin cleavage; and a convolutional neural network surrogate trained on 2 000 Latin Hypercube samples enables real-time phenotype prediction without a solver.
+
+> **v4.0** adds global sensitivity analysis (Morris & Sobol), flux variability analysis, multi-condition comparison, phenotype phase planes, a grounded multi-turn chatbot, live model validation, Prometheus metrics, WebSocket streaming, an API-key auth layer, and a fully redesigned multi-page dashboard. See [`docs/METHODS.md`](docs/METHODS.md), [`docs/VALIDATION.md`](docs/VALIDATION.md), and [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md).
+
+---
+
+## Live Demo
+
+| Service | URL |
+|:---|:---|
+| REST API (FastAPI) | http://34.14.186.73:8000 |
+| Interactive API docs (Swagger) | http://34.14.186.73:8000/docs |
+| Health & telemetry | http://34.14.186.73:8000/health |
+| Streamlit dashboard | http://34.14.186.73:8501 |
+
+> Hosted on Google Cloud Platform. `GET` endpoints are public; `POST` endpoints accept an optional `X-API-Key` header when `DT_API_KEY` is configured.
+
+### API Endpoints (v4.0)
+
+| Method | Path | Purpose |
+|:---|:---|:---|
+| `GET`  | `/health` | Uptime, memory, CPU, active gut zone, version |
+| `GET`  | `/metrics` | Prometheus exposition (counters, gauges, histogram) |
+| `GET`  | `/logs` | Last *n* lines of the rotating log file |
+| `GET`  | `/genome/stats` | Layer 1 genome assembly statistics |
+| `GET`  | `/layers/status` | Per-layer status and key metrics |
+| `POST` | `/fba/simulate` | Flux balance analysis with optional E-Flux |
+| `POST` | `/fba/fva` | Flux variability analysis (Mahadevan & Schilling 2003) |
+| `POST` | `/fba/phase_plane` | Phenotype phase plane over two reactions |
+| `POST` | `/sensitivity/morris` | Morris one-at-a-time sensitivity (μ\*, σ) |
+| `POST` | `/sensitivity/sobol` | Sobol first- and total-order indices (SALib) |
+| `POST` | `/compare/gut_transit` | FBA + E-Flux across gut zones |
+| `POST` | `/compare/carbon_sources` | Growth across carbon sources |
+| `POST` | `/surrogate/predict` | CNN surrogate growth prediction |
+| `GET`  | `/validate/gem` | SBML validation of the strain GEM |
+| `GET`  | `/validate/surrogate` | Live surrogate-vs-FBA benchmark (MAE/RMSE/R²) |
+| `POST` | `/chat`, `/chat/explain_flux` | Grounded multi-turn scientific chat |
+| `GET`  | `/export/report` · `/export/gem` · `/export/figures/{id}` | Downloadable artefacts |
+| `WS`   | `/ws/simulate` | Streaming FBA progress for the live progress bar |
 
 ---
 
