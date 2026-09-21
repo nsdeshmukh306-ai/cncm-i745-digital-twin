@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pydantic>=2
+cobra
+numpy
+pandas
+scipy
+scikit-learn

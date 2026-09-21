@@ -1,0 +1,3 @@
+model,n,TP,TN,FP,FN,accuracy,sensitivity,specificity,mcc
+CNCM_I745,6,3,0,3,0,0.5,1.0,0.0,0.0
+Yeast9_base,6,6,0,0,0,1.0,1.0,,0.0

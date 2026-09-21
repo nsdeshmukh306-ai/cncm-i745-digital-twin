@@ -1,0 +1,28 @@
+name: sbdt
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.12
+  - cobra
+  - biopython
+  - numpy
+  - scipy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - seaborn
+  - plotly
+  - emcee
+  - arviz
+  - salib
+  - fastapi
+  - uvicorn
+  - python-docx
+  - requests
+  - pyarrow
+  - glpk
+  - sympy
+  - tqdm
+  - pytest
+  - openpyxl

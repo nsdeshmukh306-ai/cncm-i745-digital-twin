@@ -1,0 +1,514 @@
+{
+ "l1_n_assemblies_screened": 8,
+ "l1_n_boulardii_qualifying": 6,
+ "l1_s288c_seqs": 17,
+ "l1_s288c_bp": 12157105,
+ "l1_s288c_n50": 924431,
+ "l1_s288c_gc": 38.15,
+ "l1_sb_bp_min": 11469511,
+ "l1_sb_bp_max": 12001065,
+ "l1_sb_gc_min": 38.09,
+ "l1_sb_gc_max": 38.35,
+ "l1_sb_n50_min": 295654,
+ "l1_sb_n50_max": 909758,
+ "l1_n_query_genes": 63,
+ "l1_control_recovery": 63,
+ "l1_control_total": 63,
+ "l1_kctc_core_pid_min": 78.2,
+ "l1_kctc_core_pid_max": 99.7,
+ "l1_kctc_core_pid_median": 89.6,
+ "l1_kctc_core_below95": 7,
+ "l1_n_core_controls": 8,
+ "l1_sb_core_pid_min": 99.4,
+ "l1_sb_core_pid_median": 100.0,
+ "l1_sb_core_below95": 0,
+ "l1_genes_absent_all6": [
+  "AIF1",
+  "ARN2",
+  "ASP3-1",
+  "ASP3-2",
+  "ASP3-3",
+  "ASP3-4",
+  "AYT1",
+  "BDS1",
+  "COS10",
+  "ENB1",
+  "HXT11",
+  "HXT9",
+  "IMA2",
+  "IMA3",
+  "IMA4",
+  "MAL11",
+  "MAL13",
+  "REE1",
+  "TDA8",
+  "VTH1",
+  "VTH2"
+ ],
+ "l1_n_absent_all6": 21,
+ "l1_khatri_testable": 26,
+ "l1_khatri_confirmed": 21,
+ "l1_khatri_unconfirmed": [
+  "AAD15",
+  "COS6",
+  "PAU15",
+  "PAU16",
+  "VAM10"
+ ],
+ "l1_gal_genes": [
+  "GAL1",
+  "GAL10",
+  "GAL2",
+  "GAL3",
+  "GAL4",
+  "GAL7",
+  "GAL80"
+ ],
+ "l1_gal_all_present": true,
+ "l1_introgressed_genes": 5,
+ "l1_introgression_copies": 2,
+ "l1_introgression_start": 910215,
+ "l1_introgression_end": 942416,
+ "l1_introgression_pid_min": 98.93,
+ "l1_introgression_pid_max": 100.0,
+ "l1_introgression_sc_pid_max": 71.8,
+ "l2_n_gpr_edits": 14,
+ "l2_n_deleted": 6,
+ "l2_n_rewritten_only": 8,
+ "l2_deleted_reactions": [
+  "L-asparaginase",
+  "trehalose transporter",
+  "sucrose glucohydrolase",
+  "Isomaltose 6-alpha-D-glucanohydrolase",
+  "Dextrin 6-alpha-D-glucanohydrolase",
+  "Oligo-1,6-glucosidase IMA2 (EC 3.2.1.10) (Alpha-glucosidase) (Isomaltase 2)"
+ ],
+ "l2_n_absent_in_model": 10,
+ "l2_absent_in_model": [
+  "ASP3-1",
+  "ASP3-2",
+  "ASP3-3",
+  "ASP3-4",
+  "HXT11",
+  "HXT9",
+  "IMA2",
+  "IMA3",
+  "IMA4",
+  "MAL11"
+ ],
+ "l2_base_reactions": 4105,
+ "l2_base_active_reactions": 4093,
+ "l2_base_metabolites": 2748,
+ "l2_base_genes": 1143,
+ "l2_strain_reactions": 4105,
+ "l2_strain_active_reactions": 4087,
+ "l2_strain_metabolites": 2748,
+ "l2_strain_genes": 1143,
+ "l2_phenotype": {
+  "acetate": {
+   "base": 0.13269,
+   "strain": 0.13269,
+   "delta": 0.0
+  },
+  "ammonium": {
+   "base": 0.83863,
+   "strain": 0.83863,
+   "delta": 0.0
+  },
+  "asparagine": {
+   "base": 1.29716,
+   "strain": 1.29716,
+   "delta": 0.0
+  },
+  "ethanol": {
+   "base": 0.29035,
+   "strain": 0.29035,
+   "delta": 0.0
+  },
+  "galactose": {
+   "base": 0.79478,
+   "strain": 0.79478,
+   "delta": 0.0
+  },
+  "glucose": {
+   "base": 0.83863,
+   "strain": 0.83863,
+   "delta": 0.0
+  },
+  "glycerol": {
+   "base": 0.42242,
+   "strain": 0.42242,
+   "delta": 0.0
+  },
+  "maltose": {
+   "base": 1.63648,
+   "strain": 1.63648,
+   "delta": 0.0
+  },
+  "melibiose": {
+   "base": 0.0,
+   "strain": 0.0,
+   "delta": 0.0
+  },
+  "raffinose": {
+   "base": 0.83863,
+   "strain": 0.83863,
+   "delta": 0.0
+  },
+  "sucrose": {
+   "base": 1.68033,
+   "strain": 1.68033,
+   "delta": 0.0
+  },
+  "trehalose": {
+   "base": 1.63909,
+   "strain": 0.0,
+   "delta": -1.63909
+  }
+ },
+ "l2_n_substrates": 12,
+ "l2_n_differing": 1,
+ "l2_differing": [
+  "trehalose"
+ ],
+ "l2_ess_base": {
+  "neutral": 922,
+  "essential": 190,
+  "growth_reduced": 31
+ },
+ "l2_ess_strain": {
+  "neutral": 912,
+  "essential": 190,
+  "growth_reduced": 31
+ },
+ "l2_ess_gained": [],
+ "l2_ess_lost": [],
+ "l2_ess_n_changed": 0,
+ "l2_wt_growth": 0.08404,
+ "l2_capacity": {
+  "galactose": {
+   "min_ratio": 0.0,
+   "binding_v_lo": 0.1,
+   "binding_v_hi": 3.0,
+   "max_deficit_pct": 100.0,
+   "deficit_at_1_pct": 27.4
+  },
+  "glucose": {
+   "min_ratio": 0.889,
+   "binding_v_lo": 0.1,
+   "binding_v_hi": 0.5,
+   "max_deficit_pct": 11.1,
+   "deficit_at_1_pct": 0.0
+  },
+  "maltose": {
+   "min_ratio": 0.625,
+   "binding_v_lo": 0.1,
+   "binding_v_hi": 3.0,
+   "max_deficit_pct": 37.5,
+   "deficit_at_1_pct": 21.0
+  },
+  "sucrose": {
+   "min_ratio": 0.98,
+   "binding_v_lo": 0.1,
+   "binding_v_hi": 0.75,
+   "max_deficit_pct": 2.0,
+   "deficit_at_1_pct": 0.0
+  }
+ },
+ "l2_paralogues_galactose": [
+  5,
+  3
+ ],
+ "l2_paralogues_glucose": [
+  20,
+  18
+ ],
+ "l2_paralogues_maltose": [
+  4,
+  3
+ ],
+ "l2_phenotype_scores": {
+  "CNCM_I745": {
+   "n": 6,
+   "TP": 3,
+   "TN": 0,
+   "FP": 3,
+   "FN": 0,
+   "accuracy": 0.5,
+   "mcc": 0.0
+  },
+  "Yeast9_base": {
+   "n": 6,
+   "TP": 6,
+   "TN": 0,
+   "FP": 0,
+   "FN": 0,
+   "accuracy": 1.0,
+   "mcc": 0.0
+  }
+ },
+ "l2_mcnemar": {
+  "n_pairs": 6,
+  "discordant": 0,
+  "corrected_fixes": 0,
+  "corrected_breaks": 0,
+  "p_exact": 1.0,
+  "threshold_mu": 0.0001,
+  "note": "exact two-sided binomial McNemar on the S. boulardii observations; a short panel has low power by construction"
+ },
+ "l2_panel_n": 8,
+ "l2_panel_representable": 6,
+ "l3_n_reactions_constrained": 2678,
+ "l3_n_gpr_mapped": 2677,
+ "l3_zone_mu": {
+  "duodenum": 0.08404,
+  "ileum": 0.13581,
+  "colon": 0.02553
+ },
+ "l3_genes_per_zone": 6204,
+ "l3_n_tested_per_contrast": 4105,
+ "l3_significant": {
+  "duodenum_vs_colon": 520,
+  "duodenum_vs_ileum": 467,
+  "ileum_vs_colon": 513
+ },
+ "l3_pump_cost_pH2": 47.06,
+ "l3_pump_cost_pH7": 17.37,
+ "l3_ngam_basal": 0.7,
+ "l3_ph2_ngam": {
+  "0.002": 0.02,
+  "0.005": 0.05,
+  "0.01": 0.1,
+  "0.02": 0.2,
+  "0.05": 0.5,
+  "0.1": 1.0,
+  "0.2": 2.0,
+  "0.3": 3.0,
+  "0.5": 5.0,
+  "0.75": 7.5,
+  "1.0": 10.0,
+  "1.5": 15.0,
+  "2.0": 20.0,
+  "3.0": 30.0
+ },
+ "l3_ph2_mu": {
+  "0.002": 0.02537,
+  "0.005": 0.02514,
+  "0.01": 0.02476,
+  "0.02": 0.02398,
+  "0.05": 0.02167,
+  "0.1": 0.0178,
+  "0.2": 0.00894,
+  "0.3": 0.0,
+  "0.5": 0.0,
+  "0.75": 0.0,
+  "1.0": 0.0,
+  "1.5": 0.0,
+  "2.0": 0.0,
+  "3.0": 0.0
+ },
+ "l3_kleak_lethal_at_pH2": 0.3,
+ "l3_kleak_grid": [
+  0.002,
+  0.005,
+  0.01,
+  0.02,
+  0.05,
+  0.1,
+  0.2,
+  0.3,
+  0.5,
+  0.75,
+  1.0,
+  1.5,
+  2.0,
+  3.0
+ ],
+ "l3_survival_pH": {
+  "0.002": 1.5,
+  "0.005": 1.5,
+  "0.01": 1.5,
+  "0.02": 1.5,
+  "0.05": 1.5,
+  "0.1": 1.75,
+  "0.2": 2.0,
+  "0.3": 2.25,
+  "0.5": 2.5,
+  "0.75": 2.5,
+  "1.0": 2.75,
+  "1.5": 2.75,
+  "2.0": 3.0,
+  "3.0": 3.25
+ },
+ "l4_posterior": {
+  "vmax": {
+   "median": 78.8042,
+   "lo95": 42.1055,
+   "hi95": 270.8504
+  },
+  "km": {
+   "median": 46.4572,
+   "lo95": 5.5044,
+   "hi95": 319.3876
+  },
+  "k_spont": {
+   "median": 0.18,
+   "lo95": 0.0813,
+   "hi95": 0.3329
+  },
+  "half_life_h": {
+   "median": 0.83,
+   "lo95": 0.5797,
+   "hi95": 1.23
+  },
+  "frac_1h": {
+   "median": 0.5839,
+   "lo95": 0.4231,
+   "hi95": 0.754
+  },
+  "frac_4h": {
+   "median": 0.9971,
+   "lo95": 0.9437,
+   "hi95": 1.0
+  },
+  "protease_share": {
+   "median": 0.7456,
+   "lo95": 0.6034,
+   "hi95": 0.8762
+  }
+ },
+ "l4_sobol_top": {
+  "parameter": "k_sup",
+  "S1": 0.869,
+  "ST": 0.881
+ },
+ "l4_sobol": [
+  {
+   "parameter": "k_sup",
+   "S1": 0.8691,
+   "ST": 0.8811
+  },
+  {
+   "parameter": "k_il10d",
+   "S1": 0.0473,
+   "ST": 0.0702
+  },
+  {
+   "parameter": "k_il10",
+   "S1": 0.0341,
+   "ST": 0.0468
+  },
+  {
+   "parameter": "k_fb",
+   "S1": 0.0258,
+   "ST": 0.0428
+  },
+  {
+   "parameter": "k_deg",
+   "S1": 0.0,
+   "ST": 0.0
+  },
+  {
+   "parameter": "k_il1d",
+   "S1": 0.0,
+   "ST": 0.0
+  },
+  {
+   "parameter": "k_tnfd",
+   "S1": 0.0,
+   "ST": 0.0
+  },
+  {
+   "parameter": "k_il1",
+   "S1": 0.0,
+   "ST": 0.0
+  },
+  {
+   "parameter": "k_tnf",
+   "S1": 0.0,
+   "ST": 0.0
+  },
+  {
+   "parameter": "k_act",
+   "S1": 0.0,
+   "ST": 0.0
+  }
+ ],
+ "l4_nfkb_prior_predictive": {
+  "median": 0.8123059291257133,
+  "lo95": 0.5846396231336045,
+  "hi95": 0.8962732220433041,
+  "n": 3072,
+  "note": "prior-predictive under uniform parameter ranges; not calibrated to data"
+ },
+ "l5_cv": {
+  "random_forest": {
+   "r2": 0.9867,
+   "r2_sd": 0.0085,
+   "mae": 0.004958
+  },
+  "mlp_ensemble": {
+   "r2": 0.977,
+   "r2_sd": 0.0146,
+   "mae": 0.00571
+  },
+  "gradient_boosting": {
+   "r2": 0.9766,
+   "r2_sd": 0.0113,
+   "mae": 0.010131
+  },
+  "ridge": {
+   "r2": 0.6707,
+   "r2_sd": 0.0543,
+   "mae": 0.046672
+  }
+ },
+ "l5_best_model": "random_forest",
+ "l5_speed": {
+  "surrogate_us": 7.37,
+  "lp_ms": 391.6,
+  "speedup": 53120.1,
+  "coverage": 0.94,
+  "rf_us": 170.81
+ },
+ "l5_n_training": 2000,
+ "l5_mu_range": [
+  0.00445,
+  0.47958
+ ],
+ "l6_outcomes": {
+  "C_difficile_excluded": 208,
+  "coexistence": 48
+ },
+ "l6_grid_n": 256,
+ "l6_min_dose": {
+  "0.05": 2.0,
+  "0.08": 0.05,
+  "0.1": 0.05,
+  "0.15": 0.05,
+  "0.2": 0.1,
+  "0.3": 0.25
+ },
+ "l6_min_dose_overall": 0.05,
+ "l6_endpoint": {
+  "C_difficile_alone": {
+   "boulardii": 0.0,
+   "c_difficile": 7.48666666,
+   "toxinA": 67.3752
+  },
+  "dosed_S_boulardii": {
+   "boulardii": 11.370284,
+   "c_difficile": 2.83e-06,
+   "toxinA": 0.0
+  },
+  "undosed_S_boulardii": {
+   "boulardii": 0.000669,
+   "c_difficile": 7.48621102,
+   "toxinA": 61.1142
+  }
+ },
+ "l6_toxin_reduction_pct": 100.0,
+ "provenance_entries": 10,
+ "n_references": 28,
+ "n_references_resolved": 26
+}

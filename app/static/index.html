@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>S. boulardii CNCM I-745 — digital twin</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+<style>
+ :root{--bg:#f7f8fa;--card:#fff;--ink:#1c2430;--mut:#66707d;--line:#e2e6ec;--acc:#2f6f9f;--warn:#8c2d04}
+ *{box-sizing:border-box}
+ body{margin:0;font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+ header{background:var(--card);border-bottom:1px solid var(--line);padding:14px 22px}
+ header h1{margin:0;font-size:17px;font-weight:600}
+ header p{margin:3px 0 0;color:var(--mut);font-size:12.5px}
+ nav{display:flex;gap:2px;padding:0 22px;background:var(--card);border-bottom:1px solid var(--line);flex-wrap:wrap}
+ nav button{border:0;background:none;padding:9px 13px;font:inherit;font-size:13px;color:var(--mut);cursor:pointer;border-bottom:2px solid transparent}
+ nav button.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600}
+ main{padding:18px 22px;max-width:1280px}
+ .panel{display:none}.panel.on{display:block}
+ .grid{display:grid;grid-template-columns:290px 1fr;gap:16px;align-items:start}
+ .card{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:14px}
+ .card h3{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--mut)}
+ label{display:block;margin:9px 0 3px;font-size:12.5px;color:var(--mut)}
+ input[type=range]{width:100%}
+ select,input[type=text],input[type=number]{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:5px;font:inherit}
+ .val{float:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+ button.go{margin-top:13px;width:100%;padding:8px;border:0;border-radius:6px;background:var(--acc);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+ button.go:disabled{background:#9bb4c8;cursor:default}
+ .kpi{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
+ .kpi div{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px;min-width:132px}
+ .kpi b{display:block;font-size:20px;font-variant-numeric:tabular-nums}
+ .kpi span{font-size:11.5px;color:var(--mut)}
+ table{border-collapse:collapse;width:100%;font-size:12.5px}
+ th,td{text-align:left;padding:5px 8px;border-bottom:1px solid var(--line)}
+ th{color:var(--mut);font-weight:600}
+ td.num{text-align:right;font-variant-numeric:tabular-nums}
+ .plot{height:380px}
+ .note{font-size:12px;color:var(--mut);margin-top:8px}
+ .bad{color:var(--warn);font-weight:600}
+ .pill{display:inline-block;padding:1px 7px;border-radius:9px;font-size:11px;background:#eef3f7;color:var(--acc)}
+ .pill.absent{background:#fdece0;color:var(--warn)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Saccharomyces cerevisiae var. boulardii CNCM I-745 — digital twin</h1>
+  <p>Comparative genomics → strain-specific GEM → expression-constrained zones → host kinetics → surrogate → competition</p>
+</header>
+<nav id="nav"></nav>
+<main>
+  <div class="panel" id="p-genome">
+    <div class="kpi" id="k-genome"></div>
+    <div class="grid">
+      <div class="card">
+        <h3>Marker lookup</h3>
+        <label>Gene</label>
+        <input type="text" id="g-gene" placeholder="HXT9, MAL11, GAL1…" value="HXT9"/>
+        <button class="go" onclick="loadGene()">Look up</button>
+        <div class="note">Presence calls come from tblastn against each assembly with locus-level
+        paralogue resolution; “ambiguous” means two paralogues cannot be told apart by alignment.</div>
+      </div>
+      <div class="card"><h3>Assemblies</h3><div id="t-asm"></div>
+        <h3 style="margin-top:16px">Calls</h3><div id="t-gene"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-fba">
+    <div class="grid">
+      <div class="card">
+        <h3>Nutrient conditions</h3>
+        <label>Carbon source</label>
+        <select id="f-carbon">
+          <option>glucose</option><option>galactose</option><option>maltose</option>
+          <option>sucrose</option><option>trehalose</option><option>glycerol</option>
+          <option>ethanol</option><option>acetate</option><option>raffinose</option><option>melibiose</option>
+        </select>
+        <label>Carbon uptake <span class="val" id="v-cu">1.65</span></label>
+        <input type="range" id="f-cu" min="0" max="20" step="0.05" value="1.65" oninput="v('v-cu',this.value)"/>
+        <label>Oxygen <span class="val" id="v-o2">2.00</span></label>
+        <input type="range" id="f-o2" min="0" max="20" step="0.1" value="2" oninput="v('v-o2',this.value)"/>
+        <label>Model</label>
+        <select id="f-model"><option value="strain">CNCM I-745 (corrected)</option><option value="base">Yeast9 (S. cerevisiae)</option></select>
+        <button class="go" id="b-fba" onclick="runFBA()">Solve LP</button>
+        <div class="note">Units are mmol gDW⁻¹ h⁻¹. The LP is solved live; compare with the
+        surrogate tab for the speed/accuracy trade-off.</div>
+      </div>
+      <div class="card">
+        <div class="kpi" id="k-fba"></div>
+        <div class="plot" id="pl-fba"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-zone">
+    <div class="grid">
+      <div class="card">
+        <h3>Gut zone</h3>
+        <select id="z-zone" onchange="loadZone()">
+          <option value="stomach">Stomach (pH 2.0)</option>
+          <option value="duodenum">Duodenum (pH 6.0)</option>
+          <option value="ileum" selected>Ileum (pH 7.0)</option>
+          <option value="colon">Colon (pH 7.2)</option>
+        </select>
+        <div class="note">Duodenum, ileum and colon are constrained by genome-wide expression
+        (GEO GSE18) through E-Flux. The stomach is modelled bioenergetically instead: no
+        acid-shock array exists in that series, and at pH 2 the dominant cost is the ATP
+        spent holding the proton gradient.</div>
+      </div>
+      <div class="card"><div class="kpi" id="k-zone"></div><div class="plot" id="pl-zone"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-kin">
+    <div class="grid">
+      <div class="card">
+        <h3>Toxin A proteolysis</h3>
+        <div class="note" style="margin:0 0 10px">54 kDa serine protease (Castagliuolo 1996, 1999).
+        Defaults are posterior medians from MCMC calibration.</div>
+        <label>Use posterior <input type="checkbox" id="k-post" checked onchange="togglePost()"/></label>
+        <label>V<sub>max</sub> <span class="val" id="v-vm">—</span></label>
+        <input type="range" id="k-vm" min="1" max="400" step="1" value="50" oninput="v('v-vm',this.value)" disabled/>
+        <label>K<sub>m</sub> <span class="val" id="v-km">—</span></label>
+        <input type="range" id="k-km" min="1" max="400" step="1" value="50" oninput="v('v-km',this.value)" disabled/>
+        <button class="go" onclick="runKin()">Simulate</button>
+      </div>
+      <div class="card"><div class="kpi" id="k-kin"></div><div class="plot" id="pl-kin"></div>
+        <h3 style="margin-top:14px">NF-κB sensitivity (Sobol total order)</h3><div id="t-sobol"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-sur">
+    <div class="grid">
+      <div class="card">
+        <h3>Surrogate inputs</h3>
+        <label>Glucose <span class="val" id="v-sg">1.65</span></label>
+        <input type="range" id="s-glc" min="0.1" max="10" step="0.05" value="1.65" oninput="v('v-sg',this.value);runPred()"/>
+        <label>Oxygen <span class="val" id="v-so">2.00</span></label>
+        <input type="range" id="s-o2" min="0" max="10" step="0.05" value="2" oninput="v('v-so',this.value);runPred()"/>
+        <label>Ammonium <span class="val" id="v-sn">5.00</span></label>
+        <input type="range" id="s-nh4" min="0.1" max="10" step="0.05" value="5" oninput="v('v-sn',this.value);runPred()"/>
+        <label>Phosphate <span class="val" id="v-sp">1.00</span></label>
+        <input type="range" id="s-pi" min="0.01" max="2" step="0.01" value="1" oninput="v('v-sp',this.value);runPred()"/>
+        <div class="note">Prediction updates on every slider move — that is the point of the
+        surrogate. Intervals are Monte-Carlo dropout.</div>
+      </div>
+      <div class="card"><div class="kpi" id="k-sur"></div>
+        <h3>Cross-validated comparison</h3><div id="t-cv"></div>
+        <div class="note" id="n-speed"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-comp">
+    <div class="grid">
+      <div class="card">
+        <h3>Competition parameters</h3>
+        <label>Inhibition of <i>C. difficile</i> (k<sub>ox</sub>) <span class="val" id="v-kox">0.80</span></label>
+        <input type="range" id="c-kox" min="0" max="3" step="0.05" value="0.8" oninput="v('v-kox',this.value)"/>
+        <label>Transit / dilution rate D (h⁻¹) <span class="val" id="v-D">0.100</span></label>
+        <input type="range" id="c-D" min="0.02" max="0.5" step="0.005" value="0.1" oninput="v('v-D',this.value)"/>
+        <label>Influent carbohydrate <span class="val" id="v-Sin">25.0</span></label>
+        <input type="range" id="c-Sin" min="5" max="60" step="1" value="25" oninput="v('v-Sin',this.value)"/>
+        <label>Protease clearance k<sub>prot</sub> <span class="val" id="v-kp">1.20</span></label>
+        <input type="range" id="c-kp" min="0" max="5" step="0.05" value="1.2" oninput="v('v-kp',this.value)"/>
+        <button class="go" onclick="runComp()">Simulate 200 h</button>
+      </div>
+      <div class="card"><div class="kpi" id="k-comp"></div><div class="plot" id="pl-comp"></div></div>
+    </div>
+  </div>
+
+  <div class="panel" id="p-ask">
+    <div class="card" style="max-width:720px">
+      <h3>Ask the twin</h3>
+      <input type="text" id="q-text" placeholder="e.g. which genes are absent? / how fast is the surrogate?"/>
+      <button class="go" onclick="runQ()">Route</button>
+      <div class="note">Deterministic keyword routing to the REST endpoints — not a language
+      model. The matched route is shown so the answer is traceable.</div>
+      <pre id="q-out" style="white-space:pre-wrap;font-size:12px"></pre>
+    </div>
+  </div>
+</main>
+<script>
+const TABS=[["genome","Genomics"],["fba","Metabolism"],["zone","Gut zones"],
+            ["kin","Host kinetics"],["sur","Surrogate"],["comp","Competition"],["ask","Ask"]];
+const nav=document.getElementById("nav");
+TABS.forEach(([id,label],i)=>{const b=document.createElement("button");b.textContent=label;
+  b.onclick=()=>show(id);b.id="b-"+id;nav.appendChild(b);});
+function show(id){TABS.forEach(([t])=>{document.getElementById("p-"+t).classList.toggle("on",t===id);
+  document.getElementById("b-"+t).classList.toggle("on",t===id);});
+  if(id==="genome")loadGenome(); if(id==="zone")loadZone(); if(id==="kin")loadKin();
+  if(id==="sur")loadSur(); if(id==="comp")runComp();}
+function v(id,x){document.getElementById(id).textContent=(+x).toFixed(id==="v-D"?3:2);}
+const api=(p,o)=>fetch(p,o).then(r=>r.json());
+const post=(p,b)=>api(p,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(b)});
+function kpi(el,items){document.getElementById(el).innerHTML=items.map(
+  ([val,lab,cls])=>`<div><b class="${cls||''}">${val}</b><span>${lab}</span></div>`).join("");}
+function table(el,rows,cols){if(!rows.length){document.getElementById(el).innerHTML="<p class=note>no rows</p>";return;}
+ document.getElementById(el).innerHTML="<table><tr>"+cols.map(c=>`<th>${c[1]}</th>`).join("")+"</tr>"+
+ rows.map(r=>"<tr>"+cols.map(c=>{const x=r[c[0]];const n=typeof x==="number";
+  return `<td class="${n?'num':''}">${n?(Math.abs(x)<1e-4&&x!==0?x.toExponential(2):(+x).toFixed(c[2]??3)):(x??"")}</td>`;}).join("")+"</tr>").join("")+"</table>";}
+
+async function loadGenome(){const d=await api("/genome");
+ kpi("k-genome",[[d.assemblies.length,"assemblies compared"],
+   [d.genes_absent_in_all_boulardii.length,"genes absent in all S. boulardii","bad"],
+   [d.n_calls,"presence calls"]]);
+ table("t-asm",d.assemblies,[["assembly","assembly"],["accession","accession"],["n_seqs","seqs",0],
+   ["total_bp","bp",0],["n50","N50",0],["gc_pct","GC %",2]]);
+ loadGene();}
+async function loadGene(){const g=document.getElementById("g-gene").value.trim();
+ const d=await api("/genome?gene="+encodeURIComponent(g)).catch(()=>null);
+ if(!d||!d.calls){document.getElementById("t-gene").innerHTML="<p class=note>gene not in the panel</p>";return;}
+ document.getElementById("t-gene").innerHTML="<table><tr><th>assembly</th><th>call</th><th>% id</th><th>% cov</th><th>locus</th></tr>"+
+  d.calls.map(r=>`<tr><td>${r.assembly}</td><td><span class="pill ${r.call==='absent'||r.call==='degraded'?'absent':''}">${r.call}</span></td>
+   <td class=num>${(+r.best_pident).toFixed(1)}</td><td class=num>${(+r.best_qcov).toFixed(1)}</td><td>${r.best_locus||""}</td></tr>`).join("")+"</table>";}
+
+async function runFBA(){const b=document.getElementById("b-fba");b.disabled=true;b.textContent="Solving…";
+ const d=await post("/fba",{carbon_source:document.getElementById("f-carbon").value,
+  carbon_uptake:+document.getElementById("f-cu").value,oxygen:+document.getElementById("f-o2").value,
+  model:document.getElementById("f-model").value,top_n:15});
+ b.disabled=false;b.textContent="Solve LP";
+ kpi("k-fba",[[d.growth_rate.toFixed(4),"growth rate (h⁻¹)",d.growth_rate<1e-6?"bad":""],
+   [(d.solve_seconds*1000).toFixed(0)+" ms","LP solve time"],[d.model,"model"]]);
+ const f=(d.top_fluxes||[]).slice().reverse();
+ Plotly.newPlot("pl-fba",[{type:"bar",orientation:"h",x:f.map(r=>r.flux),
+   y:f.map(r=>r.name.slice(0,46)),marker:{color:"#2f6f9f"}}],
+   {margin:{l:280,r:20,t:26,b:40},title:{text:"Top pFBA fluxes",font:{size:13}},
+    xaxis:{title:"mmol gDW⁻¹ h⁻¹"},font:{size:11}},{displayModeBar:false});}
+
+async function loadZone(){const z=document.getElementById("z-zone").value;
+ const d=await api("/zone/"+z).catch(()=>null); if(!d)return;
+ if(z==="stomach"){const b=d.bioenergetics||[];
+  kpi("k-zone",[[d.conditions.pH,"luminal pH"],[b.length?b[0].ngam_extra.toFixed(2):"—","extra ATP maintenance"],
+    [b.length?b[0].pump_cost_kJ_per_mol.toFixed(1):"—","kJ per mol H⁺ pumped"]]);
+  const ph=await api("/ph_response");const ks=[...new Set(ph.curve.map(r=>r.k_leak))];
+  Plotly.newPlot("pl-zone",ks.map(k=>({type:"scatter",mode:"lines",name:"k_leak="+k,
+    x:ph.curve.filter(r=>r.k_leak===k).map(r=>r.pH),y:ph.curve.filter(r=>r.k_leak===k).map(r=>r.mu)})),
+   {margin:{l:60,r:20,t:26,b:46},title:{text:"Growth versus luminal pH",font:{size:13}},
+    xaxis:{title:"luminal pH"},yaxis:{title:"growth rate (h⁻¹)"},font:{size:11}},{displayModeBar:false});
+  return;}
+ kpi("k-zone",[[d.conditions.pH,"luminal pH"],[d.conditions.oxygen,"O₂ (mmol gDW⁻¹ h⁻¹)"],
+   [d.conditions.transit_h+" h","transit time"]]);
+ const f=(d.fluxes||[]).slice(0,18).reverse();
+ Plotly.newPlot("pl-zone",[{type:"bar",orientation:"h",x:f.map(r=>r.median),
+   y:f.map(r=>r.name.slice(0,46)),marker:{color:"#2f6f9f"},
+   error_x:{type:"data",symmetric:false,array:f.map(r=>r.hi95-r.median),
+            arrayminus:f.map(r=>r.median-r.lo95),color:"#8896a4",thickness:1}}],
+  {margin:{l:280,r:20,t:26,b:44},title:{text:"Zone fluxes (median, 95% interval)",font:{size:13}},
+   xaxis:{title:"mmol gDW⁻¹ h⁻¹"},font:{size:11}},{displayModeBar:false});}
+
+let POST=null;
+async function loadKin(){POST=await api("/kinetics/posterior").catch(()=>null);
+ if(POST&&POST.nfkb_sobol)table("t-sobol",POST.nfkb_sobol.slice(0,6),
+   [["parameter","parameter"],["S1","first order",3],["ST","total order",3]]);
+ runKin();}
+function togglePost(){const on=document.getElementById("k-post").checked;
+ document.getElementById("k-vm").disabled=on;document.getElementById("k-km").disabled=on;}
+async function runKin(){const on=document.getElementById("k-post").checked;
+ const body=on?{use_posterior:true,t_end:8}:{use_posterior:false,t_end:8,
+   vmax:+document.getElementById("k-vm").value,km:+document.getElementById("k-km").value};
+ const d=await post("/kinetics",body); if(!d.trajectory)return;
+ document.getElementById("v-vm").textContent=(+d.vmax).toFixed(1);
+ document.getElementById("v-km").textContent=(+d.km).toFixed(1);
+ kpi("k-kin",[[d.half_life_h.toFixed(2)+" h","toxin A half-life"],
+   [(100*d.protease_share).toFixed(0)+"%","protease-dependent clearance"],[d.parameter_source,"parameters"]]);
+ const tr=[{type:"scatter",mode:"lines",name:"toxin A",x:d.trajectory.map(r=>r.t_h),
+   y:d.trajectory.map(r=>r.toxinA),line:{color:"#8c2d04",width:2}}];
+ if(POST&&POST.trajectory_band){const b=POST.trajectory_band;
+  tr.unshift({type:"scatter",x:b.map(r=>r.t_h).concat(b.map(r=>r.t_h).reverse()),
+   y:b.map(r=>r.hi95).concat(b.map(r=>r.lo95).reverse()),fill:"toself",fillcolor:"rgba(140,45,4,.14)",
+   line:{width:0},name:"95% credible",hoverinfo:"skip"});}
+ Plotly.newPlot("pl-kin",tr,{margin:{l:60,r:20,t:26,b:46},
+   title:{text:"Toxin A clearance",font:{size:13}},xaxis:{title:"time (h)"},
+   yaxis:{title:"toxin A (% of initial)"},font:{size:11}},{displayModeBar:false});}
+
+async function loadSur(){const d=await api("/surrogate/metrics").catch(()=>null);if(!d)return;
+ table("t-cv",d.cv,[["model","model"],["r2_mean","R² mean",4],["r2_std","R² sd",4],["mae_mean","MAE",5]]);
+ if(d.speed)document.getElementById("n-speed").textContent=
+  `Measured: ${(d.speed.seconds_per_surrogate_prediction*1e6).toFixed(1)} µs per surrogate prediction vs `+
+  `${(d.speed.seconds_per_lp_solve*1e3).toFixed(1)} ms per LP solve — ${d.speed.speedup.toFixed(0)}× faster. `+
+  `MC-dropout 95% interval coverage on held-out data: ${(100*d.speed.mc_dropout_95_coverage).toFixed(1)}%.`;
+ runPred();}
+let predBusy=false;
+async function runPred(){if(predBusy)return;predBusy=true;
+ const d=await post("/predict",{glucose:+document.getElementById("s-glc").value,
+   oxygen:+document.getElementById("s-o2").value,ammonium:+document.getElementById("s-nh4").value,
+   phosphate:+document.getElementById("s-pi").value,uncertainty:true}).catch(()=>null);
+ predBusy=false; if(!d||d.growth_rate===undefined)return;
+ kpi("k-sur",[[d.growth_rate.toFixed(4),"predicted growth (h⁻¹)"],
+   [d.ci95?`${d.ci95[0].toFixed(3)} – ${d.ci95[1].toFixed(3)}`:"—","95% interval"],
+   [(d.seconds*1e6).toFixed(0)+" µs","inference time"]]);}
+
+async function runComp(){const d=await post("/competition",{k_ox:+document.getElementById("c-kox").value,
+  D:+document.getElementById("c-D").value,S_in:+document.getElementById("c-Sin").value,
+  k_prot:+document.getElementById("c-kp").value,t_end:200});
+ if(!d.timecourse)return;const t=d.timecourse.map(r=>r.t_h);
+ kpi("k-comp",[[d.outcome.classification.replace(/_/g," "),"outcome",
+    d.outcome.classification==="C_difficile_excluded"?"":"bad"],
+   [d.outcome.C_final.toExponential(2),"C. difficile (gDW L⁻¹)"],
+   [d.outcome.A_final.toFixed(3),"toxin A at endpoint"]]);
+ Plotly.newPlot("pl-comp",[
+   {type:"scatter",mode:"lines",name:"S. boulardii",x:t,y:d.timecourse.map(r=>r.boulardii),line:{color:"#2f6f9f",width:2}},
+   {type:"scatter",mode:"lines",name:"C. difficile",x:t,y:d.timecourse.map(r=>r.c_difficile),line:{color:"#8c2d04",width:2}},
+   {type:"scatter",mode:"lines",name:"toxin A",x:t,y:d.timecourse.map(r=>r.toxinA),yaxis:"y2",
+    line:{color:"#b6801a",width:1.5,dash:"dot"}}],
+  {margin:{l:60,r:60,t:26,b:46},title:{text:"Chemostat competition",font:{size:13}},
+   xaxis:{title:"time (h)"},yaxis:{title:"biomass (gDW L⁻¹)"},
+   yaxis2:{title:"toxin A",overlaying:"y",side:"right"},font:{size:11},
+   legend:{orientation:"h",y:1.14}},{displayModeBar:false});}
+
+async function runQ(){const d=await post("/query",{question:document.getElementById("q-text").value});
+ document.getElementById("q-out").textContent=JSON.stringify(d,null,1);}
+show("genome");
+</script>
+</body>
+</html>

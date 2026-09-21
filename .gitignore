@@ -1,11 +1,21 @@
-data/
+# Downloaded inputs: re-fetch with scripts/fetch_data.ps1. The provenance ledger
+# (data/PROVENANCE.json) records URL, accession, size and SHA-256 of each.
+data/genomes/
+data/geo/
+data/blast/
+data/blastwork/
+articles/
+
+# Build and run artefacts
 logs/
-*.pyc
-__pycache__/
-.env
+bundle/
+.pushwork/
 *.zip
-*.fasta
-*.xml
-*.h5
-*.pt
+__pycache__/
+*.pyc
 .ipynb_checkpoints/
+.venv/
+
+# Local secrets and tool state
+.env
+.claude/

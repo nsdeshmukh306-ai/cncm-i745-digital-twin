@@ -1,0 +1,128 @@
+reaction,name,n_paralogues,n_retained,capacity
+r_1096,(R)-mevalonate transport,2,2,2.0
+r_1099,2-oxoadipate and 2-oxoglutarate transport,2,2,2.0
+r_1101,4-aminobutyrate transport,2,2,2.0
+r_1108,adenine transport,3,3,3.0
+r_1110,ADP/ATP transporter,3,3,3.0
+r_1115,ammonia transport,4,4,4.0
+r_1133,cytosine transport,4,4,4.0
+r_1134,D-fructose transport,15,13,13.0
+r_1135,D-galactose transport,5,3,3.0
+r_1139,D-mannose transport,13,11,11.0
+r_1146,episterol transport,2,2,2.0
+r_1147,ergosterol transport,2,2,2.0
+r_1148,ergosterol transport,2,2,2.0
+r_1161,fecosterol transport,2,2,2.0
+r_1162,fecosterol transport,2,2,2.0
+r_1166,glucose transport,20,18,18.0
+r_1168,glutathione transport,2,2,2.0
+r_1171,glycerol transport,3,3,3.0
+r_1172,glycerol transport via channel,2,2,2.0
+r_1173,glycine transport,5,5,5.0
+r_1176,guanine transport,3,3,3.0
+r_1177,inositol transport,2,2,2.0
+r_1178,iron (II) transport,2,2,2.0
+r_1179,iron (II) transport,2,2,2.0
+r_1183,L-alanine transport,4,4,4.0
+r_1184,L-arganine transport,3,3,3.0
+r_1185,L-arganine transport,2,2,2.0
+r_1186,L-asparagine transport,4,4,4.0
+r_1188,L-aspartate transport,2,2,2.0
+r_1190,L-aspartate transport,3,3,3.0
+r_1192,L-cystine transport,7,7,7.0
+r_1196,L-glutamate transport,4,4,4.0
+r_1198,L-glutamine transport,2,2,2.0
+r_1199,L-glutamine transport,4,4,4.0
+r_1200,"L-histidine transport, vacuolar",4,4,4.0
+r_1201,L-histidine transport,3,3,3.0
+r_1204,L-isoleucine transport,2,2,2.0
+r_1205,L-isoleucine transport,5,5,5.0
+r_1210,"L-leucine transport, vacuoluar",2,2,2.0
+r_1211,L-leucine transport,6,6,6.0
+r_1212,L-lysine transport,4,4,4.0
+r_1213,L-lysine transport,2,2,2.0
+r_1214,L-methionine transport,7,7,7.0
+r_1215,L-phenylalanine transport,5,5,5.0
+r_1216,L-proline transport,2,2,2.0
+r_1217,L-serine transport,6,6,6.0
+r_1218,L-threonine transport,3,3,3.0
+r_1219,L-tryptophan transport,5,5,5.0
+r_1221,L-tyrosine transport,2,2,2.0
+r_1222,L-tyrosine transport,2,2,2.0
+r_1223,L-tyrosine transport,6,6,6.0
+r_1224,L-valine transport,5,5,5.0
+r_1225,lanosterol transport,2,2,2.0
+r_1227,maltose transport,4,3,3.0
+r_1229,NAD transport,2,2,2.0
+r_1236,octadecanoate (n-C18:0) transport,2,2,2.0
+r_1244,phosphate transport,5,5,5.0
+r_1245,phosphate transport,2,2,2.0
+r_1249,potassium transport,2,2,2.0
+r_1251,putrescine transport,2,2,2.0
+r_1252,putrescine transport,2,2,2.0
+r_1260,spermidine transport,6,6,6.0
+r_1261,spermidine transport,2,2,2.0
+r_1262,spermine transport,4,4,4.0
+r_1263,spermine transport,4,4,4.0
+r_1270,thiamine transport,3,3,3.0
+r_1278,zymosterol transport,2,2,2.0
+r_1585,2-oxobutanoate transporter,2,2,2.0
+r_1684,choline transport,2,2,2.0
+r_1707,D-arabinose transport,2,2,2.0
+r_1717,D-sorbitol transport,4,4,4.0
+r_1771,fatty acid transport,2,2,2.0
+r_1772,fatty acid transport,2,2,2.0
+r_1774,fatty acid transport,2,2,2.0
+r_1877,L-arabinoase transport,2,2,2.0
+r_1908,L-sorbitol transport,4,4,4.0
+r_1910,L-sorbose transport,13,11,11.0
+r_2034,pyruvate transport,3,3,3.0
+r_2041,ribose transporter,2,2,2.0
+r_2105,xylitol transport,2,2,2.0
+r_2107,zymosterol transport,2,2,2.0
+r_2219,fatty acyl-CoA transport via ABC system (C12:0),2,2,2.0
+r_2220,fatty acyl-CoA transport via ABC system (C14:0),2,2,2.0
+r_2221,fatty acyl-CoA transport via ABC system (C16:0),2,2,2.0
+r_2222,fatty acyl-CoA transport via ABC system (C16:1),2,2,2.0
+r_2223,fatty acyl-CoA transport via ABC system (C18:0),2,2,2.0
+r_2224,fatty acyl-CoA transport via ABC system (C18:1),2,2,2.0
+r_2225,fatty acyl-CoA transport via ABC system (C20:0),2,2,2.0
+r_2226,fatty acyl-CoA transport via ABC system (C22:0),2,2,2.0
+r_2227,fatty acyl-CoA transport via ABC system (C24:0),2,2,2.0
+r_2228,fatty acyl-CoA transport via ABC system (C26:0),2,2,2.0
+r_2231,"octadecenoate (n-C18:1) transport, cytoplasm-peroxisome",2,2,2.0
+r_3526,"H2O transport, cytoplasm-ER membrane",2,2,2.0
+r_3604,"H2O transport, cytoplasm-cell envelope",3,3,3.0
+r_3605,"phosphate transport, cytoplasm-cell envelope",3,3,3.0
+r_3813,"phosphatidyl-L-serine (1-16:0, 2-16:1) transport, ER membrane-Golgi membrane",2,2,2.0
+r_3814,"phosphatidyl-L-serine (1-16:1, 2-16:1) transport, ER membrane-Golgi membrane",2,2,2.0
+r_3815,"phosphatidyl-L-serine (1-18:0, 2-16:1) transport, ER membrane-Golgi membrane",2,2,2.0
+r_3816,"phosphatidyl-L-serine (1-18:1, 2-16:1) transport, ER membrane-Golgi membrane",2,2,2.0
+r_3817,"phosphatidyl-L-serine (1-16:0, 2-18:1) transport, ER membrane-Golgi membrane",2,2,2.0
+r_3818,"phosphatidyl-L-serine (1-16:1, 2-18:1) transport, ER membrane-Golgi membrane",2,2,2.0
+r_3819,"phosphatidyl-L-serine (1-18:0, 2-18:1) transport, ER membrane-Golgi membrane",2,2,2.0
+r_3820,"phosphatidyl-L-serine (1-18:1, 2-18:1) transport, ER membrane-Golgi membrane",2,2,2.0
+r_3961,"phosphate transport, mitochondrion-mitochondrial membrane",2,2,2.0
+r_4161,Probable vacuolar amino acid transporter YPQ3 (PQ-loop repeat-containing protein 3) (Protein RTC2) (Restriction of telomere capping protein 2),2,2,2.0
+r_4162,Probable vacuolar amino acid transporter YPQ3 (PQ-loop repeat-containing protein 3) (Protein RTC2) (Restriction of telomere capping protein 2),2,2,2.0
+r_4163,Probable vacuolar amino acid transporter YPQ3 (PQ-loop repeat-containing protein 3) (Protein RTC2) (Restriction of telomere capping protein 2),2,2,2.0
+r_4195,Zinc transporter YKE4,2,2,2.0
+r_4224,Sodium transport ATPase 5 (EC 3.6.3.7),3,3,3.0
+r_4327,"Magnesium transporter MRS2, mitochondrial (RNA-splicing protein MRS2)",2,2,2.0
+r_4361,Gly-Met transport via proton symport,2,2,2.0
+r_4387,ala-L-asp-L transport via proton symport,2,2,2.0
+r_4395,D-tagatose uptake via diffusion,15,13,13.0
+r_4398,Ala-Gln transport via proton symport,2,2,2.0
+r_4402,Ala-Thr transport via proton symport (extracellular to cytosol),2,2,2.0
+r_4404,Gly-Asn transport via proton symport (extracellular to cytosol),2,2,2.0
+r_4408,L-alanyl-L-glutamate transport in via proton symport,2,2,2.0
+r_4424,Gly-Gln transport via proton symport,2,2,2.0
+r_4429,Ala-His transport via proton symport,2,2,2.0
+r_4437,Gly-Glu transport via proton symport (extracellular to cytosol),2,2,2.0
+r_4448,Met-Ala transport via proton symport (extracellular to cytosol),2,2,2.0
+r_4468,2-deoxy-D-ribose transport,2,2,2.0
+r_4471,Ala-Leu transport via proton symport (extracellular to cytosol),2,2,2.0
+r_4473,L-alanylglycine transport via proton antiport,2,2,2.0
+r_4591,Zn(2+) transport,2,2,2.0
+r_4592,Mg(2+) transport,2,2,2.0
+r_4698,ethyl propionate transport,2,2,2.0

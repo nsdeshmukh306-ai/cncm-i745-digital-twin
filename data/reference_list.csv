@@ -1,0 +1,29 @@
+key,doi,expected_title,status_in_v4
+khatri2017,10.1038/s41598-017-00414-2,Complete genome sequence and comparative genomics of the probiotic yeast Saccharomyces boulardii,added
+castagliuolo1996,10.1128/iai.64.12.5225-5232.1996,Saccharomyces boulardii protease inhibits Clostridium difficile toxin A effects,added
+castagliuolo1999,10.1128/iai.67.1.302-307.1999,Saccharomyces boulardii protease inhibits the effects of C. difficile toxins A and B in human colonic mucosa,corrected
+buts2006,10.1203/01.pdr.0000220322.31940.29,Saccharomyces boulardii produces in rat small intestine a novel protein phosphatase that inhibits Escherichia coli endotoxin,corrected
+colijn2009,10.1371/journal.pcbi.1000489,Interpreting expression data with metabolic flux models: predicting Mycobacterium tuberculosis mycolic acid production,added
+gasch2000,10.1091/mbc.11.12.4241,Genomic expression programs in the response of yeast cells to environmental changes,added
+yeast9,10.1038/s44320-024-00060-7,Yeast9: a consensus yeast metabolic model,corrected
+yeast8,10.1038/s41467-019-11581-3,A consensus S. cerevisiae metabolic model Yeast8,verified
+edwardsingram2007,10.1128/AEM.02201-06,Genotypic and physiological characterization of Saccharomyces boulardii,added
+kim2022,10.1186/s12934-022-01926-x,Engineering Saccharomyces boulardii for fucose utilisation,added
+mcfarland2010,10.3748/wjg.v16.i18.2202,Systematic review and meta-analysis of Saccharomyces boulardii,verified
+czerucka2007,10.1111/j.1365-2036.2007.03442.x,Review article: yeast as probiotics - Saccharomyces boulardii,verified
+sougioultzis2006,10.1016/j.bbrc.2006.02.080,Saccharomyces boulardii produces a soluble anti-inflammatory factor that inhibits NF-kB,added
+orth2010,10.1038/nbt.1614,What is flux balance analysis?,verified
+ebrahim2013,10.1186/1752-0509-7-74,COBRApy: COnstraints-Based Reconstruction and Analysis for Python,verified
+camacho2009,10.1186/1471-2105-10-421,BLAST+: architecture and applications,added
+foremanmackey2013,10.1086/670067,emcee: the MCMC hammer,added
+benjamini1995,10.1111/j.2517-6161.1995.tb02031.x,Controlling the false discovery rate,added
+herman2017,10.21105/joss.00097,SALib: an open-source Python library for sensitivity analysis,added
+virtanen2020,10.1038/s41592-019-0686-2,SciPy 1.0,verified
+harris2020,10.1038/s41586-020-2649-2,Array programming with NumPy,verified
+sayers2022,10.1093/nar/gkab1112,Database resources of the NCBI,added
+barrett2013,10.1093/nar/gks1193,NCBI GEO: archive for functional genomics data sets,added
+kelesidis2012,10.1177/1756283X11428502,Efficacy and safety of probiotics in irritable bowel syndrome and inflammatory bowel disease,verified
+orij2012,10.1186/gb-2012-13-9-r80,Genome-wide analysis of intracellular pH reveals quantitative control of cell division rate,added
+cock2009,10.1093/bioinformatics/btp163,Biopython: freely available Python tools for computational molecular biology,added
+pedregosa2011,10.48550/arXiv.1201.0490,Scikit-learn: machine learning in Python,added
+paszke2019,10.48550/arXiv.1912.01703,"PyTorch: an imperative style, high-performance deep learning library",added

@@ -1,0 +1,17 @@
+model,substrate,role,mu,predicted,observed,representable
+Yeast9_base,D-glucose,carbon,0.838632,1.0,1,True
+Yeast9_base,D-galactose,carbon,0.794775,1.0,1,True
+Yeast9_base,glycerol,carbon,0.422425,1.0,1,True
+Yeast9_base,L-fucose,carbon,,,0,False
+Yeast9_base,palatinose,carbon,,,1,False
+Yeast9_base,maltose,carbon,1.636478,1.0,1,True
+Yeast9_base,L-asparagine,nitrogen,1.297165,1.0,1,True
+Yeast9_base,ammonium,nitrogen,0.838632,1.0,1,True
+CNCM_I745,D-glucose,carbon,0.838632,1.0,1,True
+CNCM_I745,D-galactose,carbon,0.794775,1.0,0,True
+CNCM_I745,glycerol,carbon,0.422425,1.0,1,True
+CNCM_I745,L-fucose,carbon,,,0,False
+CNCM_I745,palatinose,carbon,,,0,False
+CNCM_I745,maltose,carbon,1.636478,1.0,0,True
+CNCM_I745,L-asparagine,nitrogen,1.297165,1.0,0,True
+CNCM_I745,ammonium,nitrogen,0.838632,1.0,1,True

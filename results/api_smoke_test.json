@@ -1,0 +1,142 @@
+﻿[
+    {
+        "endpoint":  "GET /genome",
+        "status":  "ok",
+        "ms":  54,
+        "bytes":  96878,
+        "sample":  "{\"assemblies\":[{\"assembly\":\"Sb_unique28\",\"accession\":\"GCA_001413975.1\",\"n_seqs\":27,\"total_bp\":12001065,\"max_bp\":1522271,\"n50\":909172,\"l50\":6,\"gc_pct\":"
+    },
+    {
+        "endpoint":  "GET /genome?gene=HXT9",
+        "status":  "ok",
+        "ms":  18,
+        "bytes":  2756,
+        "sample":  "{\"assemblies\":[{\"assembly\":\"Sb_unique28\",\"accession\":\"GCA_001413975.1\",\"n_seqs\":27,\"total_bp\":12001065,\"max_bp\":1522271,\"n50\":909172,\"l50\":6,\"gc_pct\":"
+    },
+    {
+        "endpoint":  "GET /introgression",
+        "status":  "ok",
+        "ms":  0,
+        "bytes":  2131,
+        "sample":  "{\"loci\":[{\"zb_protein\":\"CDF90166.1\",\"contig\":\"CM003555.1\",\"start\":132482,\"end\":132943,\"identity_to_Zbailii_pct\":90.26,\"query_coverage_pct\":72.30046948"
+    },
+    {
+        "endpoint":  "GET /model_summary",
+        "status":  "ok",
+        "ms":  18,
+        "bytes":  5504,
+        "sample":  "{\"gpr_edits\":[{\"reaction\":\"r_0198\",\"reaction_name\":\"alpha-glucosidase\",\"genes_removed\":\"IMA3;IMA4\",\"systematic_removed\":\"YIL172C;YJL221C\",\"n_genes_bef"
+    },
+    {
+        "endpoint":  "GET /phenotypes",
+        "status":  "ok",
+        "ms":  31,
+        "bytes":  3894,
+        "sample":  "{\"predictions\":[{\"role\":\"carbon\",\"substrate\":\"acetate\",\"CNCM_I745\":0.132689,\"Yeast9_base\":0.132689,\"delta\":0.0},{\"role\":\"carbon\",\"substrate\":\"ethanol\""
+    },
+    {
+        "endpoint":  "GET /essentiality",
+        "status":  "ok",
+        "ms":  40,
+        "bytes":  144752,
+        "sample":  "{\"counts\":{\"neutral\":912,\"essential\":190,\"growth_reduced\":31},\"n\":1133,\"genes\":[{\"gene\":\"Q0045\",\"growth\":0.0207349204,\"ratio\":0.2467201258,\"classifica"
+    },
+    {
+        "endpoint":  "GET /zone/ileum",
+        "status":  "ok",
+        "ms":  32,
+        "bytes":  2437,
+        "sample":  "{\"zone\":\"ileum\",\"conditions\":{\"pH\":7.0,\"oxygen\":5.0,\"transit_h\":3.0},\"fluxes\":[{\"zone\":\"ileum\",\"reaction\":\"r_0438\",\"name\":\"ferrocytochrome-c:oxygen ox"
+    },
+    {
+        "endpoint":  "GET /zone/stomach",
+        "status":  "ok",
+        "ms":  0,
+        "bytes":  2349,
+        "sample":  "{\"zone\":\"stomach\",\"conditions\":{\"pH\":2.0,\"oxygen\":0.0,\"transit_h\":1.0},\"bioenergetics\":[{\"pH\":2.0,\"k_leak\":0.002,\"ngam_base\":0.7,\"ngam_extra\":0.019999"
+    },
+    {
+        "endpoint":  "GET /zone_contrasts",
+        "status":  "ok",
+        "ms":  36,
+        "bytes":  9047,
+        "sample":  "{\"n_tested\":12315,\"n_significant\":1500,\"fdr\":0.05,\"contrasts\":[\"duodenum_vs_colon\",\"duodenum_vs_ileum\",\"ileum_vs_colon\"],\"top\":[{\"contrast\":\"duodenum_"
+    },
+    {
+        "endpoint":  "GET /ph_response",
+        "status":  "ok",
+        "ms":  44,
+        "bytes":  56284,
+        "sample":  "{\"curve\":[{\"pH\":1.5,\"k_leak\":0.002,\"ngam_base\":0.7,\"ngam_extra\":0.0632453509,\"ngam_total\":0.7632453509,\"pH_cytosol\":6.9951210626,\"pump_cost_kJ_per_mol"
+    },
+    {
+        "endpoint":  "GET /kinetics/posterior",
+        "status":  "ok",
+        "ms":  12,
+        "bytes":  7406,
+        "sample":  "{\"summary\":[{\"quantity\":\"vmax\",\"median\":78.8042,\"lo95\":42.1055,\"hi95\":270.8504},{\"quantity\":\"km\",\"median\":46.4572,\"lo95\":5.5044,\"hi95\":319.3876},{\"qua"
+    },
+    {
+        "endpoint":  "GET /surrogate/metrics",
+        "status":  "ok",
+        "ms":  5,
+        "bytes":  677,
+        "sample":  "{\"cv\":[{\"model\":\"random_forest\",\"r2_mean\":0.986652322,\"r2_std\":0.0085491902,\"mae_mean\":0.0049577502,\"mae_std\":0.0006648411},{\"model\":\"mlp_ensemble\",\"r"
+    },
+    {
+        "endpoint":  "GET /competition/map",
+        "status":  "ok",
+        "ms":  17,
+        "bytes":  38332,
+        "sample":  "{\"grid\":[{\"classification\":\"coexistence\",\"Y_final\":0.3096203278,\"C_final\":7.4296116054,\"A_final\":7.9074151719,\"S_final\":0.0075622542,\"k_ox\":0.0,\"D\":0."
+    },
+    {
+        "endpoint":  "POST /predict",
+        "status":  "ok",
+        "ms":  2002,
+        "bytes":  186,
+        "sample":  "{\"growth_rate\":0.645386,\"seconds\":0.048517,\"method\":\"5-member MLP ensemble\",\"inputs\":{\"glucose\":2.5,\"oxygen\":3.0,\"ammonium\":5.0,\"phosphate\":1.0},\"sd\":"
+    },
+    {
+        "endpoint":  "POST /kinetics",
+        "status":  "ok",
+        "ms":  82,
+        "bytes":  3784,
+        "sample":  "{\"parameter_source\":\"posterior median\",\"vmax\":78.8042,\"km\":46.4572,\"k_spont\":0.18,\"half_life_h\":0.82,\"protease_share\":0.7493,\"trajectory\":[{\"t_h\":0.0,"
+    },
+    {
+        "endpoint":  "POST /competition",
+        "status":  "ok",
+        "ms":  422,
+        "bytes":  12984,
+        "sample":  "{\"parameters\":{\"mu_y\":0.35,\"mu_c\":0.55,\"ks_y\":0.5,\"ks_c\":0.2,\"yield_y\":0.45,\"yield_c\":0.3,\"D\":0.1,\"S_in\":25.0,\"k_ox\":0.8,\"k_tox\":0.45,\"k_prot\":1.2,\"k_"
+    },
+    {
+        "endpoint":  "POST /query",
+        "status":  "ok",
+        "ms":  6,
+        "bytes":  142,
+        "sample":  "{\"method\":\"keyword routing (deterministic; no language model)\",\"matched\":\"/genome\",\"score\":2,\"hint\":\"GET or POST /genome for the full result\"}"
+    },
+    {
+        "endpoint":  "POST /fba glucose",
+        "status":  "ok",
+        "ms":  18847,
+        "bytes":  769,
+        "sample":  "{\"growth_rate\":0.084042,\"solve_seconds\":6.1712,\"model\":\"strain\",\"top_fluxes\":[{\"reaction\":\"r_0438\",\"name\":\"ferrocytochrome-c:oxygen oxidoreductase\",\"f"
+    },
+    {
+        "endpoint":  "POST /fba trehalose",
+        "status":  "ok",
+        "ms":  785,
+        "bytes":  74,
+        "sample":  "{\"growth_rate\":0.0,\"solve_seconds\":0.781,\"model\":\"strain\",\"top_fluxes\":[]}"
+    },
+    {
+        "endpoint":  "GET / (dashboard)",
+        "status":  "ok",
+        "ms":  60,
+        "bytes":  24500,
+        "sample":  "\"\\u003c!DOCTYPE html\\u003e\\n\\u003chtml lang=\\\"en\\\"\\u003e\\n\\u003chead\\u003e\\n\\u003cmeta charset=\\\"utf-8\\\"/\\u003e\\n\\u003cmeta name=\\\"viewport\\\" content="
+    }
+]

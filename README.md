@@ -1,309 +1,260 @@
 <div align="center">
 
-<img src="figures/figure1_genome_map.png" alt="CNCM I-745 Genome Map" width="780"/>
+<img src="assets/banner.svg" alt="A mechanistic digital twin of Saccharomyces boulardii CNCM I-745" width="100%"/>
 
-# Computational Digital Twin of *Saccharomyces boulardii* CNCM I-745
+<br/>
 
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![PyTorch](https://img.shields.io/badge/PyTorch-2.12-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)](https://pytorch.org)
-[![COBRApy](https://img.shields.io/badge/COBRApy-0.31-4CAF50?style=for-the-badge)](https://cobrapy.readthedocs.io)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.136-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.58-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-[![Version 4.0](https://img.shields.io/badge/Version-4.0.0-1B3A6B?style=for-the-badge)](docs/METHODS.md)
+[![Release](https://img.shields.io/badge/release-5.0.0-163C71?style=for-the-badge)](CITATION.cff)
+[![Manuscript](https://img.shields.io/badge/manuscript-v4-E29119?style=for-the-badge)](manuscript_v4.txt)
+[![Python](https://img.shields.io/badge/python-3.12-106563?style=for-the-badge&logo=python&logoColor=white)](environment.yml)
+[![FastAPI](https://img.shields.io/badge/API-FastAPI-163C71?style=for-the-badge&logo=fastapi&logoColor=white)](app/main.py)
+[![License](https://img.shields.io/badge/license-MIT-106563?style=for-the-badge)](LICENSE)
+[![Reproducible](https://img.shields.io/badge/numbers-generated%20not%20typed-B32328?style=for-the-badge)](tables/NUMBERS.json)
 
-**A five-layer, genome-to-phenotype digital twin integrating constraint-based metabolic modelling, expression-constrained flux analysis, ODE pharmacodynamics, and a CNN surrogate — with a FastAPI backend and Streamlit dashboard.**
-
-*Presented at ASM India 2026 · IISER Tirupati*
+**[Findings](#what-the-twin-found) · [Architecture](#architecture) · [Quick start](#quick-start) · [API](#api) · [Reproduce](#reproduce-the-analysis) · [Errata v3 → v4](ERRATA_v3_to_v4.md) · [Cite](#cite)**
 
 </div>
 
 ---
 
-## Overview
+## Why this repository exists
 
-*Saccharomyces boulardii* CNCM I-745 is the only probiotic yeast licensed in more than 100 countries for the prevention and treatment of antibiotic-associated diarrhoea and *Clostridioides difficile*-associated disease. Despite its clinical significance, mechanistic models linking its genome to gut-level host outcomes are absent from the literature.
+*Saccharomyces cerevisiae* var. *boulardii* CNCM I-745 is the yeast most widely used as a clinical probiotic, yet quantitative models of what it does in the gut are thin. Existing strain-specific reconstructions take the literature's list of lost genes, delete them from a consensus model, and assume the result behaves like a different organism.
 
-This project constructs a hierarchical computational digital twin in which each layer is grounded in published data and peer-reviewed methods. The strain-specific genome-scale metabolic model (GEM) is derived from the Yeast9 consensus reconstruction with GPR corrections informed by comparative genomics; expression constraints from Gasch *et al.* 2000 are applied via the E-Flux algorithm; host-microbe pharmacodynamics are captured through Michaelis-Menten ODEs for CAMP factor / toxin cleavage; and a convolutional neural network surrogate trained on 2 000 Latin Hypercube samples enables real-time phenotype prediction without a solver.
+This project tests that assumption directly, then builds the parts that do change behaviour: transport capacity, gastric proton-pump cost, calibrated toxin proteolysis, and competition with *Clostridioides difficile* under dosing.
 
-> **v4.0** adds global sensitivity analysis (Morris & Sobol), flux variability analysis, multi-condition comparison, phenotype phase planes, a grounded multi-turn chatbot, live model validation, Prometheus metrics, WebSocket streaming, an API-key auth layer, and a fully redesigned multi-page dashboard. See [`docs/METHODS.md`](docs/METHODS.md), [`docs/VALIDATION.md`](docs/VALIDATION.md), and [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md).
+Everything in the manuscript is regenerated from this code. `scripts/collect_numbers.py` reads the result files into `tables/NUMBERS.json`, and `scripts/build_manuscript.py` is the only thing that writes the document. No value is typed by hand.
+
+> **Release 5.0.0 supersedes the earlier v3 / 4.0 lineage.** That work used the wrong genome accession, an incorrect gene list and a mis-attributed toxin activity. [`ERRATA_v3_to_v4.md`](ERRATA_v3_to_v4.md) lists all fourteen changed claims and why. The old code is kept, unchanged, under [`legacy_v3/`](legacy_v3/) so the history stays auditable.
 
 ---
 
-## Live Demo
+## What the twin found
 
-| Service | URL |
-|:---|:---|
-| REST API (FastAPI) | http://34.14.186.73:8000 |
-| Interactive API docs (Swagger) | http://34.14.186.73:8000/docs |
-| Health & telemetry | http://34.14.186.73:8000/health |
-| Streamlit dashboard | http://34.14.186.73:8501 |
+The headline result is a negative one, and it shapes the rest of the design.
 
-> Hosted on Google Cloud Platform. `GET` endpoints are public; `POST` endpoints accept an optional `X-API-Key` header when `DT_API_KEY` is configured.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-### API Endpoints (v4.0)
+### Gene loss alone does very little
 
-| Method | Path | Purpose |
-|:---|:---|:---|
-| `GET`  | `/health` | Uptime, memory, CPU, active gut zone, version |
-| `GET`  | `/metrics` | Prometheus exposition (counters, gauges, histogram) |
-| `GET`  | `/logs` | Last *n* lines of the rotating log file |
-| `GET`  | `/genome/stats` | Layer 1 genome assembly statistics |
-| `GET`  | `/layers/status` | Per-layer status and key metrics |
-| `POST` | `/fba/simulate` | Flux balance analysis with optional E-Flux |
-| `POST` | `/fba/fva` | Flux variability analysis (Mahadevan & Schilling 2003) |
-| `POST` | `/fba/phase_plane` | Phenotype phase plane over two reactions |
-| `POST` | `/sensitivity/morris` | Morris one-at-a-time sensitivity (μ\*, σ) |
-| `POST` | `/sensitivity/sobol` | Sobol first- and total-order indices (SALib) |
-| `POST` | `/compare/gut_transit` | FBA + E-Flux across gut zones |
-| `POST` | `/compare/carbon_sources` | Growth across carbon sources |
-| `POST` | `/surrogate/predict` | CNN surrogate growth prediction |
-| `GET`  | `/validate/gem` | SBML validation of the strain GEM |
-| `GET`  | `/validate/surrogate` | Live surrogate-vs-FBA benchmark (MAE/RMSE/R²) |
-| `POST` | `/chat`, `/chat/explain_flux` | Grounded multi-turn scientific chat |
-| `GET`  | `/export/report` · `/export/gem` · `/export/figures/{id}` | Downloadable artefacts |
-| `WS`   | `/ws/simulate` | Streaming FBA progress for the live progress bar |
+Correcting Yeast9 for the genes *S. boulardii* has lost (14 rule edits, 6 reaction deletions) changes essentiality in **0 of 1,143 genes** and growth on **1 of 12** carbon and nitrogen sources. That one is trehalose, which falls from 1.639 to 0.000 h⁻¹ and is the model's single falsifiable prediction from gene content.
+
+Against a sourced phenotype panel the corrected model is right on 3 of 6 representable substrates (MCC 0.00, *n* = 6) and makes exactly the same calls as the parent model (exact McNemar, 0 discordant pairs, *p* = 1.00).
+
+</td>
+<td width="50%" valign="top">
+
+### What does change behaviour
+
+- **Capacity.** Paralogue loss matters only when transporter capacity is limiting: galactose loses 27.4% of growth at 1 mmol gDW⁻¹ h⁻¹ per permease, maltose 21.0%, glucose 0.0%.
+- **Gastric acid.** At pH 2 the proton pump costs 47.06 kJ mol⁻¹ H⁺ against 17.37 at pH 7. Survival needs a plasma-membrane proton leak below 0.3 L gDW⁻¹ h⁻¹.
+- **Dosing.** A single inoculum washes out. Excluding *C. difficile* needs continuous administration, at a minimum of 0.05 g dry biomass per day at physiological transit.
+
+</td>
+</tr>
+</table>
+
+### Key numbers
+
+| Layer | Quantity | Value |
+|:--|:--|:--|
+| 1 · Genomics | Published absences replicated in all 6 qualifying assemblies | 21 of 26 testable |
+| 1 · Genomics | Method sensitivity on the *S. cerevisiae* control | 63 / 63 |
+| 1 · Genomics | Galactose pathway (GAL1, 2, 3, 4, 7, 10, 80) | intact in every assembly |
+| 2 · GEM | Essentiality changes after correction | 0 of 1,143 genes |
+| 3 · Zones | Reactions constrained by GSE18 expression (6,204 genes per zone) | 2,677 of 2,678 GPR-bearing |
+| 3 · Zones | FDR-significant zone contrasts (of 4,105 tested) | 520 · 467 · 513 |
+| 4 · Kinetics | Toxin A half-life, median (95% CrI) | 0.83 h (0.58–1.23) |
+| 4 · Kinetics | Protease share of clearance, median (95% CrI) | 0.75 (0.60–0.88) |
+| 4 · Kinetics | NF-κB suppression, prior-predictive median (95% interval, *n* = 3,072) | 81% (58–90%), **not a fit** |
+| 5 · Surrogate | Speed, MLP ensemble vs the LP | 7.4 µs vs 392 ms |
+| 6 · Competition | Grid points with *C. difficile* excluded | 208 of 256 |
+
+### Surrogate: measured, not asserted
+
+Five-fold cross-validation on 2,000 Latin-hypercube samples, identical folds for every model (mean ± SD across folds, *n* = 5).
+
+| Model | R² | MAE (h⁻¹) |
+|:--|:--:|:--:|
+| Random forest | **0.987 ± 0.009** | 0.0050 ± 0.0007 |
+| MLP ensemble | 0.977 ± 0.015 | 0.0057 ± 0.0009 |
+| Gradient boosting | 0.977 ± 0.011 | 0.0101 ± 0.0010 |
+| Ridge | 0.671 ± 0.054 | 0.0467 ± 0.0014 |
+
+The random forest is the more accurate model. The neural surrogate is kept for inference speed and for its five-member deep-ensemble uncertainty, whose 95% interval covers 94% of held-out points. The v3 convolutional network was dropped because convolution assumes locality along the input axis, and the four exchange bounds have no order.
 
 ---
 
 ## Architecture
 
 ```mermaid
-flowchart TB
-    G[("<b>Genome</b><br/>Khatri et al. 2017<br/>11.6 Mbp · 16 chr")]:::data
-
-    G --> L1["<b>Layer 1 — Genomic Foundation</b><br/>ORF annotation · strain-specific gene list<br/>HXT9 / HXT11 / MAL / ASP3 absent"]:::layer
-
-    L1 --> L2["<b>Layer 2 — Strain-Specific GEM</b><br/>Yeast9 → CNCM I-745 GPR correction<br/>11 rxns modified · 2 knocked out<br/>FBA growth = 0.092 h⁻¹ at 37 °C"]:::layer
-
-    L2 --> L3["<b>Layer 3 — E-Flux Regulation</b><br/>Gasch 2000 transcriptomics (proxy)<br/>29 / 42 genes mapped · 4 gut zones<br/>pFBA expression-constrained flux"]:::layer
-
-    L3 --> L4["<b>Layer 4 — Host-Microbe Interaction</b><br/>Michaelis-Menten ODE · CAMP factor<br/>TcdA cleavage · polyamine biosynthesis<br/>NF-κB anti-inflammatory signalling"]:::layer
-
-    L4 --> L5["<b>Layer 5 — CNN Surrogate</b><br/>2 000-sample LHS · 1D-CNN<br/>5-fold CV · R² = 0.8826<br/>Real-time phenotype prediction"]:::layer
-
-    L5 --> API["FastAPI<br/>REST API"]:::service
-    L5 --> DASH["Streamlit<br/>Dashboard"]:::service
-    API --> BOT["DeepSeek<br/>Chatbot"]:::service
-    DASH --> BOT
-
-    classDef data   fill:#1a1a2e,stroke:#7C4DFF,color:#e0e0e0
-    classDef layer  fill:#16213e,stroke:#00D4AA,color:#e0e0e0
-    classDef service fill:#0f3460,stroke:#FF6B6B,color:#e0e0e0
+flowchart LR
+    A["<b>1 · Genomics</b><br/>tblastn across 8 assemblies<br/>locus-level calls"]:::teal --> B["<b>2 · Strain GEM</b><br/>Yeast9 + GPR edits<br/>transport capacity"]:::navy
+    B --> C["<b>3 · Gut zones</b><br/>E-Flux from GSE18<br/>gastric bioenergetics"]:::teal
+    C --> D["<b>4 · Host kinetics</b><br/>toxin A proteolysis<br/>MCMC + Sobol"]:::navy
+    B --> E["<b>5 · Surrogate</b><br/>RF, GBM, ridge<br/>MLP deep ensemble"]:::gold
+    D --> F["<b>6 · Competition</b><br/>two-species flow model<br/>continuous dosing"]:::maroon
+    E --> F
+    classDef teal fill:#106563,stroke:#0a3f3e,color:#fff
+    classDef navy fill:#163C71,stroke:#0e2547,color:#fff
+    classDef gold fill:#E29119,stroke:#a86a0e,color:#1c1c1c
+    classDef maroon fill:#B32328,stroke:#7c1518,color:#fff
 ```
 
----
+<div align="center">
+<img src="figures/figure7_integration.png" alt="Cross-layer summary carrying the measured numbers between layers" width="620"/>
+<br/><sub><b>Figure 7.</b> Every value in this summary is read from <code>tables/NUMBERS.json</code>.</sub>
+</div>
 
-## Key Results
+| Layer | Mechanism | Main outputs |
+|:--|:--|:--|
+| 1 | Alignment-based presence and absence across six qualifying assemblies, with an independent *Z. bailii* introgression search | `results/layer1_*.csv` |
+| 2 | GPR-corrected Yeast9, phenotype panel, essentiality screen, absolute transporter capacity | `models/yeast9_cncm_i745.xml`, `results/layer2_*.csv` |
+| 3 | E-Flux zone metabolism from genome-wide microarrays; ATP cost of the proton gradient for the stomach | `results/layer3_*.csv` |
+| 4 | Toxin A proteolysis calibrated by MCMC; NF-κB module as prior-predictive with Sobol indices | `results/layer4_*.csv` |
+| 5 | Surrogate against cheap baselines on identical folds, with measured speed | `models/surrogate_mlp_ensemble.pkl`, `results/layer5_*.csv` |
+| 6 | Two-species competition under continuous dosing, dose-response and exclusion boundary | `results/layer6_*.csv` |
 
-| Metric | Value | Reference |
-|:---|:---:|:---|
-| Strain-specific GEM — GPR reactions modified | 11 | Khatri *et al.* 2017 |
-| Strain-specific GEM — reactions knocked out | 2 | Khatri *et al.* 2017 |
-| E-Flux genes mapped to model | 29 / 42 | Gasch *et al.* 2000 |
-| Maximum growth rate at 37 °C | 0.092 h⁻¹ | McFarland 2010 |
-| Glucose uptake rate | 1.65 mmol gDW⁻¹ h⁻¹ | Edwards-Ingram *et al.* 2007 |
-| Acid tolerance | pH ≥ 2.0 | McFarland 2010 |
-| Bile salt tolerance | ≥ 5 mM | McFarland 2010 |
-| CAMP factor — time to 50 % TcdA cleavage | ~35 min | Buts *et al.* 2006 |
-| CAMP factor — time to 90 % TcdA cleavage | ~156 min | Buts *et al.* 2006 |
-| CNN surrogate R² (5-fold cross-validation) | **0.8826** | This work |
-| LHS training dataset | 2 000 samples | This work |
+<details>
+<summary><b>Figures 1–6</b></summary>
 
----
+<br/>
 
-## Figures
+| | |
+|:--|:--|
+| <img src="figures/figure1_genomics.png" width="380"/><br/><sub><b>1.</b> Reported losses replicate across six assemblies; one deposit fails strain-level QC.</sub> | <img src="figures/figure2_gem.png" width="380"/><br/><sub><b>2.</b> Fourteen edits, zero essentiality changes; only trehalose separates the models.</sub> |
+| <img src="figures/figure3_zones.png" width="380"/><br/><sub><b>3.</b> Zone contrasts and the ATP tax of gastric acid.</sub> | <img src="figures/figure4_kinetics.png" width="380"/><br/><sub><b>4.</b> Toxin A clearance posterior and NF-κB sensitivity.</sub> |
+| <img src="figures/figure5_surrogate.png" width="380"/><br/><sub><b>5.</b> Speed, not accuracy, is what the surrogate buys.</sub> | <img src="figures/figure6_competition.png" width="380"/><br/><sub><b>6.</b> Exclusion needs continuous dosing; the required dose rises at both transit extremes.</sub> |
 
-<table>
-<tr>
-<td align="center" width="50%">
-<img src="figures/figure2_essentiality.png" alt="Gene Essentiality" width="380"/>
-<br/><b>Figure 2.</b> Gene essentiality landscape from exhaustive single-gene deletion FBA on the CNCM I-745 strain-specific GEM.
-</td>
-<td align="center" width="50%">
-<img src="figures/figure3_gut_transit.png" alt="Gut Transit E-Flux" width="380"/>
-<br/><b>Figure 3.</b> E-Flux predicted growth rates and flux distributions across four gut-transit zones (stomach → duodenum → jejunum → colon).
-</td>
-</tr>
-<tr>
-<td align="center" width="50%">
-<img src="figures/figure4_host_kinetics.png" alt="Host Kinetics" width="380"/>
-<br/><b>Figure 4.</b> Michaelis-Menten kinetics of CAMP factor-mediated TcdA cleavage (<i>K</i><sub>M</sub> = 15 nM, <i>V</i><sub>max</sub> = 0.8 nM min⁻¹). t<sub>90</sub> ≈ 156 min.
-</td>
-<td align="center" width="50%">
-<img src="figures/figure5_surrogate.png" alt="CNN Surrogate" width="380"/>
-<br/><b>Figure 5.</b> CNN surrogate model performance: predicted vs. FBA-computed growth rate on held-out test set. R² = 0.8826 (5-fold CV).
-</td>
-</tr>
-</table>
+</details>
 
 ---
 
-## Layer Descriptions
-
-### Layer 1 — Genomic Foundation
-`layer1_genome/genome_parser.py`
-
-Parses the CNCM I-745 genome (11.6 Mbp, 16 chromosomes; Khatri *et al.* 2017) and builds a strain-specific gene list by comparing ORF content against the *S. cerevisiae* reference. Genes confirmed absent in CNCM I-745 — **HXT9**, **HXT11**, **MAL11–33**, and **ASP3** — are flagged for GPR correction in Layer 2.
-
-### Layer 2 — Strain-Specific Genome-Scale Metabolic Model
-`layer2_gem/build_cncm_gem.py`
-
-Prunes the Yeast9 consensus GEM (Lu *et al.* 2019, *Nat. Commun.*) by removing absent-gene ORFs from OR-based GPR rules. This yields 11 modified reactions and 2 complete knockouts. Flux Balance Analysis (FBA) at 37 °C with experimentally validated exchange bounds (glucose uptake 1.65 mmol gDW⁻¹ h⁻¹) predicts a maximum growth rate of 0.092 h⁻¹, consistent with published doubling times.
-
-### Layer 3 — Expression-Constrained Flux (E-Flux)
-`layer3_regulatory/eflux_simulator.py`
-
-Applies the **E-Flux** algorithm (Colijn *et al.* 2009, *PLoS Comput. Biol.*): reaction upper bounds are scaled by √(expression ratio) for enzyme-encoding genes. Transcriptomic fold-changes are taken from Gasch *et al.* 2000 (*Mol. Biol. Cell*) as a well-validated *S. cerevisiae* environmental-stress proxy. Of 42 gene-condition pairs, 29 map to model reactions. Four gut-zone environments (stomach, duodenum, jejunum, colon) are simulated using zone-specific pH, bile salt, and nutrient parameters; pFBA is used to minimise total flux at each zone.
-
-### Layer 4 — Host-Microbe Interaction
-`layer4_host/host_interaction.py`
-
-Models three host-protective mechanisms:
-- **Protease secretion**: CAMP factor cleaves *C. difficile* toxin A (TcdA) via Michaelis-Menten ODE (K<sub>M</sub> = 15 nM; V<sub>max</sub> = 0.8 nM min⁻¹; Buts *et al.* 2006).
-- **Polyamine biosynthesis**: spermidine and spermine production linked to epithelial proliferation.
-- **Anti-inflammatory signalling**: NF-κB suppression modelled as a sigmoidal dose-response.
-
-### Layer 5 — CNN Surrogate Model
-`layer5_surrogate/surrogate_model_v2.py`
-
-A 1D convolutional neural network (3 conv layers: 64 → 128 → 64 filters; batch normalisation; dropout 0.3) trained on a 2 000-point Latin Hypercube Sampling (LHS) design over four nutrient uptake rates (glucose, oxygen, ammonium, phosphate). Five-fold cross-validation achieves **R² = 0.8826**, enabling sub-millisecond growth-rate prediction without calling a linear programming solver.
-
----
-
-## Repository Layout
-
-```
-cncm-i745-digital-twin/
-├── layer1_genome/
-│   └── genome_parser.py          # ORF parsing, strain-specific gene list
-├── layer2_gem/
-│   ├── build_cncm_gem.py         # GPR correction + FBA
-│   ├── fetch_cncm_genes.py       # gene list download helper
-│   └── gem_builder.py            # GEM assembly utilities
-├── layer3_regulatory/
-│   ├── eflux_simulator.py        # E-Flux algorithm (Colijn 2009)
-│   ├── fetch_rnaseq.py           # Gasch 2000 expression data
-│   └── regulatory_network.py    # gene regulatory network
-├── layer4_host/
-│   └── host_interaction.py       # ODE pharmacodynamics
-├── layer5_surrogate/
-│   ├── surrogate_model.py        # CNN v1
-│   └── surrogate_model_v2.py     # CNN v2 (LHS, 5-fold CV) ← current
-├── api/
-│   ├── main.py                   # FastAPI application
-│   └── chat.py                   # DeepSeek chatbot endpoint
-├── dashboard/
-│   └── app.py                    # Streamlit interactive dashboard
-├── figures/                      # Publication figures (PDF + PNG)
-├── references.py                 # All citations + validated parameters
-├── generate_figures.py           # Reproduce all figures from outputs
-├── requirements.txt              # Full Python dependency list
-├── CITATION.cff                  # Machine-readable citation
-└── scripts/
-    └── verify_v3.py              # End-to-end verification script
-```
-
-> **Data files** (GEM XMLs, genome sequences, FBA outputs, trained weights) are excluded from the repository due to size. Run each layer script in order to regenerate them.
-
----
-
-## Installation
+## Quick start
 
 ```bash
 git clone https://github.com/nsdeshmukh306-ai/cncm-i745-digital-twin.git
 cd cncm-i745-digital-twin
-pip install -r requirements.txt
+conda env create -f environment.yml
+conda activate sbdt
+python -m uvicorn app.main:app --port 8000
 ```
 
-Requires Python ≥ 3.10. A GLPK or CPLEX solver must be accessible to COBRApy; the default `swiglpk` is included in `requirements.txt`.
+Open <http://127.0.0.1:8000/> for the dashboard and <http://127.0.0.1:8000/docs> for the OpenAPI page. The corrected model, surrogate and every result file ship in the repository, so the service runs without re-fetching any data.
+
+> **Windows.** The conda DLL directories must be on `PATH` before SciPy's stiff ODE solvers and GLPK will load. `conda activate` does this. Calling `envs/sbdt/python.exe` directly does not, and the failure is a silent `0xC06D007F` exit rather than an exception. If you script the activation, prepend `%CONDA_PREFIX%\Library\bin` and `%CONDA_PREFIX%\Library\mingw-w64\bin` yourself.
 
 ---
 
-## Reproducing the Results
+## API
 
-Run layers in order — each writes its outputs to `data/` which the next layer reads:
+Seventeen routes, one per analysis. All were exercised end to end in 20 smoke-test calls, and all passed (`results/api_smoke_test.json`).
+
+| Method | Path | Layer | Purpose |
+|:--|:--|:--:|:--|
+| GET | `/health` | | Service status |
+| GET | `/genome` | 1 | Assembly statistics and marker calls; `?gene=HXT9` filters |
+| GET | `/introgression` | 1 | *Z. bailii* introgression on chromosome IV |
+| GET | `/model_summary` | 2 | Model sizes and GPR corrections |
+| GET | `/phenotypes` | 2 | Growth on carbon and nitrogen sources, base vs strain |
+| POST | `/fba` | 2 | Solve the linear program under custom nutrient bounds |
+| GET | `/essentiality` | 2 | Single-gene deletion screen |
+| GET | `/zone/{zone}` | 3 | Expression-constrained zone metabolism |
+| GET | `/zone_contrasts` | 3 | FDR-controlled between-zone contrasts |
+| GET | `/ph_response` | 3 | Growth against luminal pH |
+| POST | `/kinetics` | 4 | Toxin A proteolysis for chosen parameters |
+| GET | `/kinetics/posterior` | 4 | Posterior summary and trajectory band |
+| POST | `/predict` | 5 | Surrogate prediction, in microseconds |
+| GET | `/surrogate/metrics` | 5 | Cross-validated model comparison |
+| POST | `/competition` | 6 | *S. boulardii* against *C. difficile* |
+| GET | `/competition/map` | 6 | Exclusion boundary |
+| POST | `/query` | | Deterministic keyword routing to the routes above |
+
+`/predict` and `/fba` are both exposed on purpose, so the speed and accuracy trade-off is visible instead of hidden. `/query` is keyword routing. It is not a language model, and its own response says so.
+
+> **Hosted demo.** The instance at `34.14.186.73` still serves the archived v3 build from [`legacy_v3/`](legacy_v3/) and has not yet been redeployed with release 5.0.0. Use the local quick start above for the corrected model.
+
+---
+
+## Reproduce the analysis
+
+Each layer runs as its own process on purpose. A genome-scale model copy costs a few hundred megabytes, and holding two of them plus a solver in one long-lived kernel is what makes this pipeline fall over on a small machine.
 
 ```bash
-# 1. Parse genome and build strain-specific gene list
-python layer1_genome/genome_parser.py
+pwsh scripts/fetch_data.ps1          # genomes, Yeast9, BLAST+ (writes data/PROVENANCE.json)
+python scripts/build_expression.py   # GSE18 zone matrices
 
-# 2. Build strain-specific GEM (GPR corrections + FBA)
-python layer2_gem/build_cncm_gem.py
+python scripts/layer1_markers.py     # tblastn screen
+python scripts/layer1_calls.py       # locus-level presence calls
+pwsh scripts/introgression.ps1       # Z. bailii introgression search
+python scripts/run_layer2.py base
+python scripts/run_layer2.py strain
+python scripts/run_essentiality.py base
+python scripts/run_essentiality.py strain
+python scripts/run_phenotype_matrix.py
+python scripts/run_layer3.py         # zone ensembles + FDR contrasts
+python scripts/run_ph.py             # gastric bioenergetics
+python scripts/run_layer4.py         # MCMC + Sobol
+python scripts/run_layer5_ml.py      # surrogate + baselines, from the shipped LHS labels
+python scripts/run_layer6.py         # competition + dose response
 
-# 3. E-Flux expression-constrained FBA across gut zones
-python layer3_regulatory/eflux_simulator.py
-
-# 4. Host-interaction ODE simulation
-python layer4_host/host_interaction.py
-
-# 5. Train CNN surrogate (LHS dataset + 5-fold CV)
-python layer5_surrogate/surrogate_model_v2.py
-
-# 6. Regenerate all publication figures
-python generate_figures.py
+python scripts/collect_numbers.py    # results -> tables/NUMBERS.json
+python scripts/make_figures.py       # figures 1-7
+python scripts/build_manuscript.py   # manuscript from NUMBERS.json only
 ```
 
-### Launch the interactive dashboard
+The 2,000 Latin-hypercube FBA labels the surrogate trains on ship in `results/layer5_training_data.csv`. `scripts/run_layer5.py` is the superseded v3 driver that generated them; it also trains the old convolutional network and would overwrite the layer 5 metrics, so do not run it on a finished checkout.
 
-```bash
-uvicorn api.main:app --reload &   # start REST API on :8000
-streamlit run dashboard/app.py    # open dashboard on :8501
+`scripts/fetch_data.ps1` records the URL, accession or release tag, byte size, SHA-256 digest and retrieval time of every input in `data/PROVENANCE.json` (10 entries). If a rerun gives different numbers, comparing those digests tells you which upstream source moved.
+
+---
+
+## Repository layout
+
+```text
+sbdtwin/        analysis package: gem, eflux, bioenergetics, kinetics, surrogate, competition
+scripts/        data acquisition, layer drivers, figure builders, manuscript build
+app/            FastAPI service and single-page dashboard
+data/           inputs, expression provenance, PROVENANCE.json
+results/        every result CSV and JSON the manuscript reads
+figures/        Figures 1-7
+models/         corrected SBML model and trained surrogate ensemble
+tables/         NUMBERS.json and the manuscript tables
+assets/         README banner
+legacy_v3/      archived v3 / 4.0 code, kept for the record
 ```
 
 ---
 
-## Scientific References
+## Limitations
 
-1. Khatri I *et al.* (2017). Complete genome sequence and comparative genomics of the probiotic yeast *Saccharomyces boulardii*. *Scientific Reports* **7**, 371. https://doi.org/10.1038/s41598-017-00414-2
-2. Lu H *et al.* (2019). A consensus *S. cerevisiae* metabolic model Yeast8 and its ecosystem for comprehensively probing cellular metabolism. *Nature Communications* **10**, 3586. https://doi.org/10.1038/s41467-019-11581-3
-3. Colijn C *et al.* (2009). Inferring metabolic state from gene expression. *PLoS Computational Biology* **5**(4), e1000316. https://doi.org/10.1371/journal.pcbi.1000316
-4. Gasch AP *et al.* (2000). Genomic expression programs in the response of yeast cells to environmental changes. *Molecular Biology of the Cell* **11**(12), 4241–4257. https://doi.org/10.1091/mbc.11.12.4241
-5. Buts JP *et al.* (2006). *Saccharomyces boulardii* produces in rat small intestine a novel protein phosphatase that inhibits *Escherichia coli* endotoxin by dephosphorylation. *Pediatric Research* **60**(1), 24–29. https://doi.org/10.1203/01.pdr.0000220322.31945.49
-6. McFarland LV (2010). Systematic review and meta-analysis of *Saccharomyces boulardii* in adult patients. *World Journal of Gastroenterology* **16**(18), 2202–2222. https://doi.org/10.3748/wjg.v16.i18.2202
-7. Edwards-Ingram L *et al.* (2007). Genotypic and physiological characterisation of *Saccharomyces boulardii*, the probiotic strain of *Saccharomyces cerevisiae*. *Applied and Environmental Microbiology* **73**(8), 2458–2467. https://doi.org/10.1128/AEM.02201-06
-8. Kaźmierczak-Siedlecka K *et al.* (2020). *Saccharomyces boulardii* CNCM I-745: a non-bacterial microorganism used as a probiotic agent in supporting treatment of selected diseases. *Archivum Immunologiae et Therapiae Experimentalis* **68**, 28. https://doi.org/10.1007/s00005-020-00590-4
+- **No CNCM I-745 gut transcriptome is public.** The zone layer uses *S. cerevisiae* stress-response arrays from GSE18 as proxies: heat shock for the duodenum, H₂O₂ for the ileum, hyperosmotic sorbitol for the colon. No acid-shock array exists in that series, so the stomach is modelled from bioenergetics instead. Read the zone fluxes with that in mind.
+- **The phenotype panel is short by design** (6 representable substrates), fully sourced rather than padded. It has low statistical power.
+- **The NF-κB module is not a fit.** No citable quantitative time course exists, so it is reported as a prior-predictive interval, and the Sobol analysis names the one parameter (`k_sup`, ST = 0.88) that would have to be measured.
+- **Galactose-negative behaviour cannot come from gene loss.** All seven GAL genes are intact in every qualifying assembly, so the defect must be regulatory or allelic. This bounds what gene-content correction can deliver.
+- **Five of 26 testable absences stay undetermined** (AAD15, COS6, PAU15, PAU16, VAM10). They belong to multigene families whose members alignment cannot separate.
+- **One public deposit should not be used.** GCA_026225675.1 (KCTC 13826BP) has a median core-gene identity of 89.6% to *S. cerevisiae* orthologues, against 100.0% in every other assembly, and is excluded here.
 
 ---
 
-## Tech Stack
+## Cite
 
-| Component | Library / Version |
-|:---|:---|
-| Constraint-based modelling | COBRApy 0.31 · python-libsbml 5.21 |
-| Genome bioinformatics | BioPython 1.87 |
-| ODE integration | SciPy 1.17 (`odeint`) |
-| Deep learning | PyTorch 2.12 · scikit-learn |
-| Experimental design | pyDOE3 / pyDOE2 (LHS) |
-| REST API | FastAPI 0.136 · Uvicorn |
-| Dashboard | Streamlit 1.58 · Plotly 6.8 |
-| Chatbot | DeepSeek API (OpenAI-compatible) |
-| Metabolic visualisation | Escher 1.8 |
-
----
-
-## Citation
-
-If you use this work, please cite:
+If you use this software or its results, please cite it. GitHub reads [`CITATION.cff`](CITATION.cff) and offers a ready-made citation from the sidebar.
 
 ```bibtex
-@software{deshmukh_cncm_i745_2026,
-  author    = {Deshmukh, Niraj},
-  title     = {Computational Digital Twin of {{\em Saccharomyces boulardii}} CNCM I-745},
-  year      = {2026},
-  url       = {https://github.com/nsdeshmukh306-ai/cncm-i745-digital-twin},
-  note      = {Presented at ASM India 2026}
+@software{deshmukh_cncm_i745_twin_2026,
+  author  = {Deshmukh, Niraj Sunil},
+  title   = {A mechanistic digital twin of Saccharomyces cerevisiae var. boulardii CNCM I-745},
+  year    = {2026},
+  version = {5.0.0},
+  url     = {https://github.com/nsdeshmukh306-ai/cncm-i745-digital-twin}
 }
 ```
 
----
+## Licence
 
-## License
+Released under the [MIT licence](LICENSE). Models and data derived from third-party sources, including Yeast9 and the NCBI and GEO records listed in `data/PROVENANCE.json`, keep the terms of their original providers.
 
-Released under the [MIT License](LICENSE).
-
----
-
-<div align="center">
-<sub>Niraj Deshmukh · IISER Tirupati · 2025–2026</sub>
-</div>
+<div align="center"><sub>Niraj Sunil Deshmukh · Indian Institute of Science Education and Research Tirupati</sub></div>

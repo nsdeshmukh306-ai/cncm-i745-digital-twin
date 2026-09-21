@@ -1,0 +1,9 @@
+{
+ "n_pairs": 6,
+ "discordant": 0,
+ "corrected_fixes": 0,
+ "corrected_breaks": 0,
+ "p_exact": 1.0,
+ "threshold_mu": 0.0001,
+ "note": "exact two-sided binomial McNemar on the S. boulardii observations; a short panel has low power by construction"
+}

@@ -1,0 +1,4 @@
+zone,platform,samples,n_genes,source
+duodenum,GPL51,GSM929;GSM926;GSM928;GSM930,6228,"heat shock to 37 C, 20 min (GSE18; Gasch et al. 2000)"
+ileum,GPL64,GSM1112;GSM1113;GSM1114;GSM1115;GSM1116;GSM1117,6204,"constant 0.32 mM H2O2, 10-60 min (GSE18)"
+colon,GPL52,GSM972;GSM1039;GSM1040;GSM938;GSM939,6230,"1 M sorbitol hyperosmotic shock, 5-90 min (GSE18)"

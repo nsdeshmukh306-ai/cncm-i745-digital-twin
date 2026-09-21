@@ -1,0 +1,13 @@
+substrate,role,model,mu
+glucose,carbon,CNCM_I745,0.838632
+galactose,carbon,CNCM_I745,0.794775
+maltose,carbon,CNCM_I745,1.636478
+sucrose,carbon,CNCM_I745,1.680335
+trehalose,carbon,CNCM_I745,0.0
+glycerol,carbon,CNCM_I745,0.422425
+ethanol,carbon,CNCM_I745,0.290355
+acetate,carbon,CNCM_I745,0.132689
+raffinose,carbon,CNCM_I745,0.838632
+melibiose,carbon,CNCM_I745,0.0
+ammonium,nitrogen,CNCM_I745,0.838632
+asparagine,nitrogen,CNCM_I745,1.297165

@@ -1,70 +1,51 @@
 cff-version: 1.2.0
-message: "If you use this software, please cite it as below."
+title: >-
+  A mechanistic digital twin of Saccharomyces cerevisiae var. boulardii
+  CNCM I-745
+message: If you use this software or its results, please cite it.
 type: software
-title: "Computational Digital Twin of Saccharomyces boulardii CNCM I-745"
-authors:
-  - family-names: Deshmukh
-    given-names: Niraj
-    email: niraj_20254009@students.iisertirupati.ac.in
-    affiliation: "Indian Institute of Science Education and Research Tirupati"
-repository-code: "https://github.com/nsdeshmukh306-ai/cncm-i745-digital-twin"
-url: "https://github.com/nsdeshmukh306-ai/cncm-i745-digital-twin"
-abstract: >
-  A five-layer computational digital twin of the probiotic yeast
-  Saccharomyces boulardii CNCM I-745, integrating a strain-specific
-  genome-scale metabolic model (Yeast9 + GPR corrections), E-Flux
-  expression-constrained FBA (Gasch 2000 proxy), ODE-based host-microbe
-  pharmacodynamics, and a CNN surrogate model (R2 = 0.8826). Served
-  through a FastAPI backend and Streamlit dashboard with a DeepSeek
-  natural-language chatbot.
-keywords:
-  - "Saccharomyces boulardii"
-  - "CNCM I-745"
-  - "digital twin"
-  - "genome-scale metabolic model"
-  - "flux balance analysis"
-  - "E-Flux"
-  - "probiotic"
-  - "systems biology"
-  - "machine learning surrogate"
-  - "host-microbe interaction"
+version: 5.0.0
+date-released: '2026-09-22'
 license: MIT
-version: "3.0.0"
-date-released: "2026-06-09"
+authors:
+  - given-names: Niraj Sunil
+    family-names: Deshmukh
+    affiliation: >-
+      Indian Institute of Science Education and Research (IISER) Tirupati
+repository-code: 'https://github.com/nsdeshmukh306-ai/cncm-i745-digital-twin'
+url: 'https://github.com/nsdeshmukh306-ai/cncm-i745-digital-twin'
+abstract: >-
+  Six-layer computational model of the probiotic yeast S. boulardii
+  CNCM I-745. Alignment-based gene presence/absence across six genome
+  assemblies drives a corrected Yeast9 genome-scale model; the central
+  finding is that gene-content correction alone changes essentiality in
+  zero genes and growth on one of twelve substrates. Behaviours that do
+  differ are modelled explicitly: absolute transporter capacity,
+  pH-dependent gastric bioenergetics, MCMC-calibrated toxin A
+  proteolysis, and two-species competition with Clostridioides difficile
+  under continuous dosing. Ships a FastAPI service and browser dashboard.
+keywords:
+  - Saccharomyces boulardii
+  - CNCM I-745
+  - genome-scale metabolic model
+  - flux balance analysis
+  - probiotic
+  - Clostridioides difficile
+  - digital twin
+  - systems biology
 references:
   - type: article
-    authors:
-      - family-names: Khatri
-        given-names: I
-    title: "Complete genome sequence and comparative genomics of the probiotic yeast Saccharomyces boulardii"
-    journal: "Scientific Reports"
-    volume: 7
-    year: 2017
-    doi: "10.1038/s41598-017-00414-2"
+    title: 'Yeast9: a consensus yeast metabolic model'
+    doi: 10.1038/s44320-024-00060-7
+    scope: Base genome-scale reconstruction corrected in this work.
   - type: article
-    authors:
-      - family-names: Lu
-        given-names: H
-    title: "A consensus S. cerevisiae metabolic model Yeast8 and its ecosystem for comprehensively probing cellular metabolism"
-    journal: "Nature Communications"
-    volume: 10
-    year: 2019
-    doi: "10.1038/s41467-019-11581-3"
+    title: >-
+      Complete genome sequence and comparative genomics of the probiotic
+      yeast Saccharomyces boulardii
+    doi: 10.1038/s41598-017-00414-2
+    scope: Published gene-absence calls independently retested here.
   - type: article
-    authors:
-      - family-names: Colijn
-        given-names: C
-    title: "Inferring metabolic state from gene expression"
-    journal: "PLoS Computational Biology"
-    volume: 5
-    year: 2009
-    doi: "10.1371/journal.pcbi.1000316"
-  - type: article
-    authors:
-      - family-names: Gasch
-        given-names: AP
-    title: "Genomic expression programs in the response of yeast cells to environmental changes"
-    journal: "Molecular Biology of the Cell"
-    volume: 11
-    year: 2000
-    doi: "10.1091/mbc.11.12.4241"
+    title: >-
+      Interpreting expression data with metabolic flux models
+    doi: 10.1371/journal.pcbi.1000489
+    scope: E-Flux formulation used for the zone layer.

@@ -1,0 +1,92 @@
+﻿[
+    {
+        "name":  "Sb_unique28",
+        "url":  "NCBI Datasets v2 GCA_001413975.1",
+        "local_path":  "data/genomes/Sb_unique28.zip",
+        "bytes":  3794777,
+        "sha256":  "F9D64756F244FCBCFBF7C7A0D9A45FD3768810566FB6F79F650612012694C09C",
+        "retrieved_utc":  "2026-09-21T08:37:00.3826436Z",
+        "note":  "S. boulardii assembly"
+    },
+    {
+        "name":  "Sb_PY0001",
+        "url":  "NCBI Datasets v2 GCA_024732265.1",
+        "local_path":  "data/genomes/Sb_PY0001.zip",
+        "bytes":  3720951,
+        "sha256":  "E904182AB2E74C2D4D13A86A3824ED1655FB9F0377A742451C0B06A0FDB7850D",
+        "retrieved_utc":  "2026-09-21T08:37:04.8355510Z",
+        "note":  "S. boulardii assembly"
+    },
+    {
+        "name":  "Sb_KCTC13826BP",
+        "url":  "NCBI Datasets v2 GCA_026225675.1",
+        "local_path":  "data/genomes/Sb_KCTC13826BP.zip",
+        "bytes":  3953665,
+        "sha256":  "7BCC2A96204EF989DCD205B10D7077C1427F71B86346A95BA13E6F840E564858",
+        "retrieved_utc":  "2026-09-21T08:37:14.9492493Z",
+        "note":  "S. boulardii assembly"
+    },
+    {
+        "name":  "Sb_EDRL",
+        "url":  "NCBI Datasets v2 GCA_000442675.2",
+        "local_path":  "data/genomes/Sb_EDRL.zip",
+        "bytes":  3645426,
+        "sha256":  "B1B86832337B93ACCCEAE79E022F494E0CC3B7F5E6E416595D45F019CDCF741B",
+        "retrieved_utc":  "2026-09-21T08:37:19.0629665Z",
+        "note":  "S. boulardii assembly"
+    },
+    {
+        "name":  "Sb_CLPY01",
+        "url":  "NCBI Datasets v2 GCA_021216695.1",
+        "local_path":  "data/genomes/Sb_CLPY01.zip",
+        "bytes":  3645268,
+        "sha256":  "824D2A658C97DA46BCEC68E6335B9C6770F886F8DBE5C31CD3D5CF4656F6D53B",
+        "retrieved_utc":  "2026-09-21T08:37:23.6111952Z",
+        "note":  "S. boulardii assembly"
+    },
+    {
+        "name":  "Sb_ATCC_MYA797",
+        "url":  "NCBI Datasets v2 GCA_001625055.1",
+        "local_path":  "data/genomes/Sb_ATCC_MYA797.zip",
+        "bytes":  3667593,
+        "sha256":  "564201C516E4A2819E48400B06A6C0FE0F4870118767EEDEFD933CDE99FE0BC2",
+        "retrieved_utc":  "2026-09-21T08:37:28.9495765Z",
+        "note":  "S. boulardii assembly"
+    },
+    {
+        "name":  "Sb_strain17",
+        "url":  "NCBI Datasets v2 GCA_000734875.3",
+        "local_path":  "data/genomes/Sb_strain17.zip",
+        "bytes":  3639892,
+        "sha256":  "0B51D84CD196AAB69EF74B0F01EBC883875E21F7A59B7E77EF310744056A9A6B",
+        "retrieved_utc":  "2026-09-21T08:37:35.1990059Z",
+        "note":  "S. boulardii assembly"
+    },
+    {
+        "name":  "Sc_S288C",
+        "url":  "NCBI Datasets v2 GCF_000146045.2",
+        "local_path":  "data/genomes/Sc_S288C.zip",
+        "bytes":  7899582,
+        "sha256":  "1E40DC089FB7FE3E792B20FF0259165BA36387F30B3A2FEE07B526B939A023B8",
+        "retrieved_utc":  "2026-09-21T08:37:41.7970328Z",
+        "note":  "S288C R64: genome+protein+GFF"
+    },
+    {
+        "name":  "yeast-GEM.xml",
+        "url":  "https://raw.githubusercontent.com/SysBioChalmers/yeast-GEM/v9.1.1/model/yeast-GEM.xml",
+        "local_path":  "data/yeast-GEM.xml",
+        "bytes":  11568534,
+        "sha256":  "30842B15EEFB0EF7E36CBDEA86A9EFDDFACF69A871C8B054165FAA9AF9F6C8EB",
+        "retrieved_utc":  "2026-09-21T08:37:44.9823753Z",
+        "note":  "Yeast9 consensus GEM, release v9.1.1"
+    },
+    {
+        "name":  "blast_plus",
+        "url":  "https://ftp.ncbi.nlm.nih.gov/blast/executables/blast+/LATEST/ncbi-blast-2.17.0+-x64-win64.tar.gz",
+        "local_path":  "data/blast/ncbi-blast-2.17.0+-x64-win64.tar.gz",
+        "bytes":  143400333,
+        "sha256":  "CCDE8788641E8F4137536AAADEDFEAC2F3599DBBC6166E701B5D89D19FA79038",
+        "retrieved_utc":  "2026-09-21T08:38:06.0386471Z",
+        "note":  "NCBI BLAST+ win64"
+    }
+]

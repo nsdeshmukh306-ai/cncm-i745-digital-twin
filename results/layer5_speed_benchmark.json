@@ -1,0 +1,11 @@
+{
+ "seconds_per_surrogate_prediction": 7.3719726856325e-06,
+ "seconds_per_lp_solve": 0.39160019999952056,
+ "speedup": 53120.1371327276,
+ "n_surrogate": 1024,
+ "n_lp": 50,
+ "ensemble_95_coverage": 0.94,
+ "n_ensemble": 5,
+ "seconds_per_rf_prediction": 0.00017081357424331145,
+ "rf_speedup": 2292.5590178314205
+}

@@ -1,0 +1,13 @@
+substrate,role,model,mu
+glucose,carbon,Yeast9_base,0.838632
+galactose,carbon,Yeast9_base,0.794775
+maltose,carbon,Yeast9_base,1.636478
+sucrose,carbon,Yeast9_base,1.680335
+trehalose,carbon,Yeast9_base,1.639095
+glycerol,carbon,Yeast9_base,0.422425
+ethanol,carbon,Yeast9_base,0.290355
+acetate,carbon,Yeast9_base,0.132689
+raffinose,carbon,Yeast9_base,0.838632
+melibiose,carbon,Yeast9_base,0.0
+ammonium,nitrogen,Yeast9_base,0.838632
+asparagine,nitrogen,Yeast9_base,1.297165

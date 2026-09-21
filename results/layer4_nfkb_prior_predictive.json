@@ -1,0 +1,9 @@
+{
+ "suppression_prior_predictive": {
+  "median": 0.8123059291257133,
+  "lo95": 0.5846396231336045,
+  "hi95": 0.8962732220433041,
+  "n": 3072,
+  "note": "prior-predictive under uniform parameter ranges; not calibrated to data"
+ }
+}

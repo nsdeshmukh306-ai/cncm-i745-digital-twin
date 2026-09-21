@@ -1,0 +1,13 @@
+role,substrate,CNCM_I745,Yeast9_base
+carbon,acetate,0.132689,0.132689
+carbon,ethanol,0.290355,0.290355
+carbon,galactose,0.794775,0.794775
+carbon,glucose,0.838632,0.838632
+carbon,glycerol,0.422425,0.422425
+carbon,maltose,1.636478,1.636478
+carbon,melibiose,0.0,0.0
+carbon,raffinose,0.838632,0.838632
+carbon,sucrose,1.680335,1.680335
+carbon,trehalose,0.0,1.639095
+nitrogen,ammonium,0.838632,0.838632
+nitrogen,asparagine,1.297165,1.297165

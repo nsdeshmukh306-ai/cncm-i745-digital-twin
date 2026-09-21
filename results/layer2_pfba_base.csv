@@ -1,0 +1,41 @@
+model,reaction,name,abs_flux
+Yeast9_base,r_0438,ferrocytochrome-c:oxygen oxidoreductase,7.8157
+Yeast9_base,r_2096,water diffusion,7.26283
+Yeast9_base,r_1110,ADP/ATP transporter,5.67613
+Yeast9_base,r_0226,ATP synthase,5.15306
+Yeast9_base,r_1245,phosphate transport,4.02987
+Yeast9_base,r_0439,ubiquinol:ferricytochrome c reductase,3.90785
+Yeast9_base,r_1697,CO2 transport,3.68517
+Yeast9_base,r_1672,carbon dioxide exchange,3.68517
+Yeast9_base,r_1277,water diffusion,3.55727
+Yeast9_base,r_2100,water exchange,3.55727
+Yeast9_base,r_0486,glyceraldehyde-3-phosphate dehydrogenase,2.62302
+Yeast9_base,r_0892,phosphoglycerate kinase,2.62302
+Yeast9_base,r_0366,enolase,2.54907
+Yeast9_base,r_0893,phosphoglycerate mutase,2.54907
+Yeast9_base,r_0962,pyruvate kinase,2.49284
+Yeast9_base,r_0773,NADH:ubiquinone oxidoreductase,2.09647
+Yeast9_base,r_1992,oxygen exchange,2.0
+Yeast9_base,r_1979,O2 transport,2.0
+Yeast9_base,r_1978,O2 transport,1.95392
+Yeast9_base,r_1696,CO2 transport,1.82523
+Yeast9_base,r_1166,glucose transport,1.65
+Yeast9_base,r_1714,D-glucose exchange,1.65
+Yeast9_base,r_0534,hexokinase (D-glucose:ATP),1.65
+Yeast9_base,r_0770,"NADH dehydrogenase, cytosolic/mitochondrial",1.3782
+Yeast9_base,r_2115,"alcohol dehydrogenase, (acetaldehyde to ethanol)",1.37318
+Yeast9_base,r_1762,ethanol transport,1.37318
+Yeast9_base,r_1761,ethanol exchange,1.37318
+Yeast9_base,r_0959,pyruvate decarboxylase,1.37318
+Yeast9_base,r_0450,fructose-bisphosphate aldolase,1.22984
+Yeast9_base,r_0886,phosphofructokinase,1.22984
+Yeast9_base,r_1054,triose-phosphate isomerase,1.224
+Yeast9_base,r_0467,glucose-6-phosphate isomerase,0.93185
+Yeast9_base,r_2034,pyruvate transport,0.8899
+Yeast9_base,r_0569,inorganic diphosphatase,0.80907
+Yeast9_base,r_2032,pyrophosphate transport,0.80907
+Yeast9_base,r_0961,pyruvate dehydrogenase,0.76839
+Yeast9_base,r_4046,non-growth associated maintenance reaction,0.7
+Yeast9_base,r_0148,adenylate kinase,0.60023
+Yeast9_base,r_0466,glucose 6-phosphate dehydrogenase,0.58161
+Yeast9_base,r_0889,phosphogluconate dehydrogenase,0.58161

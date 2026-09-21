@@ -1,0 +1,39 @@
+﻿"key","doi","resolved","year","journal","title","first_author","volume","page","status"
+"khatri2017","10.1038/s41598-017-00414-2","yes","2017","Scientific Reports","Complete genome sequence and comparative genomics of the probiotic yeast Saccharomyces boulardii","Khatri","7",,"added"
+"castagliuolo1996","10.1128/iai.64.12.5225-5232.1996","yes","1996","Infection and Immunity","Saccharomyces boulardii protease inhibits Clostridium difficile toxin A effects in the rat ileum","Castagliuolo","64","5225-5232","added"
+"castagliuolo1999","10.1128/iai.67.1.302-307.1999","yes","1999","Infection and Immunity","<i>Saccharomyces boulardii</i>
+            Protease Inhibits the Effects of
+            <i>Clostridium difficile</i>
+            Toxins A and B in Human Colonic Mucosa","Castagliuolo","67","302-307","corrected"
+"buts2006","10.1203/01.pdr.0000220322.31940.29","yes","2006","Pediatric Research","Saccharomyces boulardii Produces in Rat Small Intestine a Novel Protein Phosphatase that Inhibits Escherichia coli Endotoxin by Dephosphorylation","Buts","60","24-29","corrected"
+"colijn2009","10.1371/journal.pcbi.1000489","yes","2009","PLoS Computational Biology","Interpreting Expression Data with Metabolic Flux Models: Predicting Mycobacterium tuberculosis Mycolic Acid Production","Colijn","5","e1000489","added"
+"gasch2000","10.1091/mbc.11.12.4241","yes","2000","Molecular Biology of the Cell","Genomic Expression Programs in the Response of Yeast Cells to Environmental Changes","Gasch","11","4241-4257","added"
+"yeast9","10.1038/s44320-024-00060-7","yes","2024","Molecular Systems Biology","Yeast9: a consensus genome-scale metabolic model for S. cerevisiae curated by the community","Zhang","20",,"corrected"
+"yeast8","10.1038/s41467-019-11581-3","yes","2019","Nature Communications","A consensus S. cerevisiae metabolic model Yeast8 and its ecosystem for comprehensively probing cellular metabolism","Lu","10",,"verified"
+"edwardsingram2007","10.1128/AEM.02201-06","yes","2007","Applied and Environmental Microbiology","Genotypic and Physiological Characterization of
+            <i>Saccharomyces boulardii</i>
+            , the Probiotic Strain of
+            <i>Saccharomyces cerevisiae</i>","Edwards-Ingram","73","2458-2467","added"
+"kim2022","10.1186/s12934-022-01926-x","yes","2022","Microbial Cell Factories","Strain engineering and metabolic flux analysis of a probiotic yeast Saccharomyces boulardii for metabolizing l-fucose, a mammalian mucin component","Kim","21",,"added"
+"mcfarland2010","10.3748/wjg.v16.i18.2202","yes","2010","World Journal of Gastroenterology","Systematic review and meta-analysis of<i>Saccharomyces boulardii</i>in adult patients","McFarland","16","2202","verified"
+"czerucka2007","10.1111/j.1365-2036.2007.03442.x","yes","2007","Alimentary Pharmacology &amp; Therapeutics","Review article: yeast as probiotics –
+                    <i>Saccharomyces boulardii</i>","CZERUCKA","26","767-778","verified"
+"sougioultzis2006","10.1016/j.bbrc.2006.02.080","yes","2006","Biochemical and Biophysical Research Communications","Saccharomyces boulardii produces a soluble anti-inflammatory factor that inhibits NF-κB-mediated IL-8 gene expression","Sougioultzis","343","69-76","added"
+"orth2010","10.1038/nbt.1614","yes","2010","Nature Biotechnology","What is flux balance analysis?","Orth","28","245-248","verified"
+"ebrahim2013","10.1186/1752-0509-7-74","yes","2013","BMC Systems Biology","COBRApy: COnstraints-Based Reconstruction and Analysis for Python","Ebrahim","7",,"verified"
+"camacho2009","10.1186/1471-2105-10-421","yes","2009","BMC Bioinformatics","BLAST+: architecture and applications","Camacho","10",,"added"
+"foremanmackey2013","10.1086/670067","yes","2013","Publications of the Astronomical Society of the Pacific","<tt>emcee</tt>
+                    : The MCMC Hammer","Foreman-Mackey","125","306-312","added"
+"benjamini1995","10.1111/j.2517-6161.1995.tb02031.x","yes","1995","Journal of the Royal Statistical Society Series B: Statistical Methodology","Controlling the False Discovery Rate: A Practical and Powerful Approach to Multiple Testing","Benjamini","57","289-300","added"
+"herman2017","10.21105/joss.00097","yes","2017","The Journal of Open Source Software","SALib: An open-source Python library for Sensitivity Analysis","Herman","2","97","added"
+"virtanen2020","10.1038/s41592-019-0686-2","yes","2020","Nature Methods","SciPy 1.0: fundamental algorithms for scientific computing in Python","Virtanen","17","261-272","verified"
+"harris2020","10.1038/s41586-020-2649-2","yes","2020","Nature","Array programming with NumPy","Harris","585","357-362","verified"
+"sayers2022","10.1093/nar/gkab1112","yes","2021","Nucleic Acids Research","Database resources of the national center for biotechnology information","Sayers","50","D20-D26","added"
+"barrett2013","10.1093/nar/gks1193","yes","2012","Nucleic Acids Research","NCBI GEO: archive for functional genomics data sets—update","Barrett","41","D991-D995","added"
+"kelesidis2012","10.1177/1756283X11428502","yes","2011","Therapeutic Advances in Gastroenterology","Efficacy and safety of the probiotic
+                    <i>Saccharomyces boulardii</i>
+                    for the prevention and therapy of gastrointestinal disorders","Kelesidis","5","111-125","verified"
+"orij2012","10.1186/gb-2012-13-9-r80","yes","2012","Genome Biology","Genome-wide analysis of intracellular pH reveals quantitative control of cell division rate by pHc in Saccharomyces cerevisiae","Orij","13",,"added"
+"cock2009","10.1093/bioinformatics/btp163","yes","2009","Bioinformatics","Biopython: freely available Python tools for computational molecular biology and bioinformatics","Cock","25","1422-1423","added"
+"pedregosa2011","10.48550/arXiv.1201.0490","no","","","Scikit-learn: machine learning in Python","","","","added"
+"paszke2019","10.48550/arXiv.1912.01703","no","","","PyTorch: an imperative style, high-performance deep learning library","","","","added"

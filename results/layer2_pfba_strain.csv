@@ -1,0 +1,41 @@
+model,reaction,name,abs_flux
+CNCM_I745,r_0438,ferrocytochrome-c:oxygen oxidoreductase,7.8157
+CNCM_I745,r_2096,water diffusion,7.26283
+CNCM_I745,r_1110,ADP/ATP transporter,5.67613
+CNCM_I745,r_0226,ATP synthase,5.15306
+CNCM_I745,r_1245,phosphate transport,4.02987
+CNCM_I745,r_0439,ubiquinol:ferricytochrome c reductase,3.90785
+CNCM_I745,r_1697,CO2 transport,3.68517
+CNCM_I745,r_1672,carbon dioxide exchange,3.68517
+CNCM_I745,r_2100,water exchange,3.55727
+CNCM_I745,r_1277,water diffusion,3.55727
+CNCM_I745,r_0486,glyceraldehyde-3-phosphate dehydrogenase,2.62302
+CNCM_I745,r_0892,phosphoglycerate kinase,2.62302
+CNCM_I745,r_0893,phosphoglycerate mutase,2.54907
+CNCM_I745,r_0366,enolase,2.54907
+CNCM_I745,r_0962,pyruvate kinase,2.49284
+CNCM_I745,r_0773,NADH:ubiquinone oxidoreductase,2.09647
+CNCM_I745,r_1992,oxygen exchange,2.0
+CNCM_I745,r_1979,O2 transport,2.0
+CNCM_I745,r_1978,O2 transport,1.95392
+CNCM_I745,r_1696,CO2 transport,1.82523
+CNCM_I745,r_1166,glucose transport,1.65
+CNCM_I745,r_1714,D-glucose exchange,1.65
+CNCM_I745,r_0534,hexokinase (D-glucose:ATP),1.65
+CNCM_I745,r_0770,"NADH dehydrogenase, cytosolic/mitochondrial",1.3782
+CNCM_I745,r_1762,ethanol transport,1.37318
+CNCM_I745,r_1761,ethanol exchange,1.37318
+CNCM_I745,r_2115,"alcohol dehydrogenase, (acetaldehyde to ethanol)",1.37318
+CNCM_I745,r_0959,pyruvate decarboxylase,1.37318
+CNCM_I745,r_0450,fructose-bisphosphate aldolase,1.22984
+CNCM_I745,r_0886,phosphofructokinase,1.22984
+CNCM_I745,r_1054,triose-phosphate isomerase,1.224
+CNCM_I745,r_0467,glucose-6-phosphate isomerase,0.93185
+CNCM_I745,r_2034,pyruvate transport,0.8899
+CNCM_I745,r_0569,inorganic diphosphatase,0.80907
+CNCM_I745,r_2032,pyrophosphate transport,0.80907
+CNCM_I745,r_0961,pyruvate dehydrogenase,0.76839
+CNCM_I745,r_4046,non-growth associated maintenance reaction,0.7
+CNCM_I745,r_0148,adenylate kinase,0.60023
+CNCM_I745,r_0466,glucose 6-phosphate dehydrogenase,0.58161
+CNCM_I745,r_0091,6-phosphogluconolactonase,0.58161

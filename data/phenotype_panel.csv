@@ -1,0 +1,9 @@
+substrate,role,exchange_hint,sc_observed,sb_observed,discriminating,gene_basis,source,evidence_note
+D-glucose,carbon,glucose,1,1,0,universal glycolytic entry,"universal; both organisms grow on glucose",trivial positive control for the FBA medium sweep
+D-galactose,carbon,galactose,1,0,1,"GAL1 GAL7 GAL10 GAL2 GAL3 GAL4 GAL80 all intact (this study)","Khatri et al. 2017 Sci Rep 7:371","stated as lack of galactose utilisation in S. boulardii; the GAL structural genes are present, so the defect is not gene loss"
+glycerol,carbon,glycerol,1,1,0,GPD1/GUT1 intact,"Khatri et al. 2017 Sci Rep 7:371 (Supplementary Fig. 3)","growth on a non-fermentable carbon source demonstrated; used to exclude respiratory deficiency"
+L-fucose,carbon,fucose,0,0,0,no native fucose catabolic route,"Kim et al. 2022 Microb Cell Fact 21:214","wild-type S. boulardii cannot metabolise L-fucose; heterologous fucU/fucI/fucK/fucA were required"
+palatinose,carbon,palatinose,1,0,1,"IMA2 IMA3 IMA4 absent (this study; Khatri 2017)","Khatri et al. 2017 Sci Rep 7:371","palatinose-utilisation isomaltase genes reported absent in all S. boulardii strains; IMA1 and IMA5 remain"
+maltose,carbon,maltose,1,0,1,"MAL11 MAL13 absent; MAL31 MAL32 MAL33 intact (this study)","Khatri et al. 2017 Sci Rep 7:371","MAL1-locus transporter and activator absent; the MAL3 locus is retained, so loss is partial rather than complete"
+L-asparagine,nitrogen,asparagine,1,0,1,"ASP3-1..ASP3-4 absent; ASP1 intact (this study)","Khatri et al. 2017 Sci Rep 7:371","cell-wall asparaginase II cluster absent in all S. boulardii strains; extracellular asparagine cannot be hydrolysed"
+ammonium,nitrogen,ammonium,1,1,0,MEP transporters intact,"universal; standard minimal-medium nitrogen source",trivial positive control for the nitrogen sweep

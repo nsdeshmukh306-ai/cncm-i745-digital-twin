@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="340" viewBox="0 0 1280 340" role="img" aria-labelledby="t d">
+  <title id="t">Digital twin of Saccharomyces boulardii CNCM I-745</title>
+  <desc id="d">Six-layer mechanistic model: genomics, metabolism, gut zones, host kinetics, surrogate, competition.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#163C71"/>
+      <stop offset="0.62" stop-color="#106563"/>
+      <stop offset="1" stop-color="#0d4e4c"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#ffffff" stroke-opacity="0.06" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <rect width="1280" height="340" rx="18" fill="url(#bg)"/>
+  <rect width="1280" height="340" rx="18" fill="url(#grid)"/>
+  <!-- decorative flux network -->
+  <g stroke="#E29119" stroke-opacity="0.55" stroke-width="1.6" fill="none">
+    <path d="M900 60 L980 110 L1060 70 L1150 130 L1220 90"/>
+    <path d="M980 110 L1010 200 L1100 230 L1150 130"/>
+    <path d="M1010 200 L940 260 L1040 300"/>
+    <path d="M1100 230 L1200 270"/>
+  </g>
+  <g fill="#E29119">
+    <circle cx="900" cy="60" r="6"/><circle cx="980" cy="110" r="9"/><circle cx="1060" cy="70" r="5"/>
+    <circle cx="1150" cy="130" r="10"/><circle cx="1220" cy="90" r="5"/><circle cx="1010" cy="200" r="7"/>
+    <circle cx="1100" cy="230" r="9"/><circle cx="940" cy="260" r="5"/><circle cx="1040" cy="300" r="6"/>
+    <circle cx="1200" cy="270" r="5"/>
+  </g>
+  <circle cx="1150" cy="130" r="18" fill="none" stroke="#B32328" stroke-width="2.5"/>
+  <rect x="60" y="62" width="88" height="6" rx="3" fill="#E29119"/>
+  <text x="60" y="118" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-weight="700" fill="#ffffff">A mechanistic digital twin of</text>
+  <text x="60" y="176" font-family="Georgia, 'Times New Roman', serif" font-size="46" font-style="italic" fill="#ffffff">Saccharomyces boulardii <tspan font-style="normal" fill="#E29119">CNCM I-745</tspan></text>
+  <text x="60" y="222" font-family="'Helvetica Neue', Arial, sans-serif" font-size="20" fill="#ffffff" fill-opacity="0.86">Strain-specific metabolism · gastric bioenergetics · dose-dependent exclusion of C. difficile</text>
+  <g font-family="'Helvetica Neue', Arial, sans-serif" font-size="14" font-weight="600">
+    <rect x="60" y="258" width="118" height="30" rx="15" fill="#ffffff" fill-opacity="0.14"/><text x="119" y="278" text-anchor="middle" fill="#fff">6 layers</text>
+    <rect x="190" y="258" width="150" height="30" rx="15" fill="#ffffff" fill-opacity="0.14"/><text x="265" y="278" text-anchor="middle" fill="#fff">Yeast9 · 4,105 rxns</text>
+    <rect x="352" y="258" width="190" height="30" rx="15" fill="#ffffff" fill-opacity="0.14"/><text x="447" y="278" text-anchor="middle" fill="#fff">every number regenerated</text>
+    <rect x="554" y="258" width="150" height="30" rx="15" fill="#B32328" fill-opacity="0.85"/><text x="629" y="278" text-anchor="middle" fill="#fff">honest null result</text>
+  </g>
+</svg>
