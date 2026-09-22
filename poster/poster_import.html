@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CNCM I-745 Digital Twin Poster</title>
+<style>
+  @page { size: 841mm 1189mm; margin: 0; }
+  :root{
+    --teal:#106563; --gold:#E29119; --navy:#163C71; --maroon:#B32328;
+    --ink:#1c2430; --paper:#ffffff; --panel:#f6f8f8; --line:#d8dee1;
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; width:841mm; height:1189mm; background:var(--paper);
+    font-family:'Georgia','Times New Roman',serif; color:var(--ink); }
+  .sans{ font-family:'Arial','Helvetica',sans-serif; }
+
+  /* ---------- TITLE BANNER ---------- */
+  .banner{
+    width:100%; min-height:118mm; background:linear-gradient(135deg,var(--navy) 0%, #0d2a52 100%);
+    color:#fff; padding:14mm 24mm 12mm 24mm; position:relative; overflow:hidden;
+  }
+  .banner::after{
+    content:""; position:absolute; right:-60mm; top:-60mm; width:260mm; height:260mm;
+    border-radius:50%; background:radial-gradient(circle, rgba(226,145,25,0.16) 0%, rgba(226,145,25,0) 70%);
+  }
+  .kicker{ font-family:'Arial',sans-serif; letter-spacing:3px; font-size:13pt; color:var(--gold);
+    text-transform:uppercase; font-weight:700; margin-bottom:6mm; }
+  .title{ font-size:46pt; line-height:1.12; font-weight:700; margin:0 0 8mm 0; max-width:680mm;
+    text-shadow:0 2px 10px rgba(0,0,0,0.25); }
+  .title i{ font-style:italic; }
+  .authors-row{ display:flex; justify-content:space-between; align-items:flex-end; margin-top:6mm; }
+  .authors{ font-family:'Arial',sans-serif; font-size:19pt; font-weight:600; }
+  .affil{ font-family:'Arial',sans-serif; font-size:13.5pt; color:#cdd9ee; margin-top:2mm; }
+  .banner-badges{ font-family:'Arial',sans-serif; display:flex; gap:6mm; }
+  .badge{ background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.35); border-radius:3mm;
+    padding:3mm 6mm; font-size:11pt; text-align:center; min-width:44mm; }
+  .badge b{ display:block; font-size:17pt; color:var(--gold); }
+
+  /* ---------- BODY GRID ---------- */
+  .body{ padding:12mm 20mm 0 20mm; }
+  .grid3{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10mm; }
+  .panel{ background:var(--panel); border:1px solid var(--line); border-radius:3mm; padding:8mm;
+    display:flex; flex-direction:column; }
+  .panel h2{ font-family:'Arial',sans-serif; font-size:16.5pt; color:var(--teal); margin:0 0 1mm 0;
+    border-bottom:2.6pt solid var(--teal); padding-bottom:3mm; font-weight:800; letter-spacing:0.2px; }
+  .panel .layer-tag{ font-family:'Arial',sans-serif; font-size:9.5pt; color:#5b6b72; letter-spacing:1.5px;
+    text-transform:uppercase; margin-bottom:3mm; font-weight:700; }
+  .panel p{ font-size:12.3pt; line-height:1.42; margin:3mm 0; text-align:justify; }
+  .panel figure{ margin:4mm 0 1mm 0; text-align:center; }
+  .panel figure img{ width:100%; height:92mm; object-fit:contain; background:#fff; border:1px solid var(--line);
+    border-radius:2mm; }
+  .panel figcaption{ font-family:'Arial',sans-serif; font-size:9.5pt; color:#556; margin-top:2mm; text-align:left; }
+  .panel figcaption b{ color:var(--teal); }
+  .stat-row{ display:flex; gap:3mm; flex-wrap:wrap; margin-top:auto; padding-top:3mm; }
+  .stat{ font-family:'Arial',sans-serif; background:#fff; border:1px solid var(--line); border-left:3pt solid var(--gold);
+    border-radius:1.5mm; padding:2mm 3mm; font-size:9.8pt; color:#333; flex:1 1 auto; min-width:38mm; }
+  .stat b{ display:block; font-size:13.5pt; color:var(--navy); }
+
+  /* Background intro strip */
+  .intro{ background:#fff; border:1.4pt solid var(--teal); border-radius:3mm; padding:7mm 10mm; margin-bottom:10mm; }
+  .intro h2{ font-family:'Arial',sans-serif; color:var(--teal); font-size:17pt; margin:0 0 3mm 0; font-weight:800; }
+  .intro p{ font-size:12.6pt; line-height:1.48; margin:0; text-align:justify; column-count:2; column-gap:12mm; }
+
+  /* Second row: key finding / integration / predictions */
+  .row2{ margin-top:10mm; }
+  .callout{ border-radius:3mm; padding:8mm; display:flex; flex-direction:column; }
+  .callout.maroon{ background:#fbecec; border:1.6pt solid var(--maroon); }
+  .callout.maroon h2{ color:var(--maroon); border-bottom-color:var(--maroon); }
+  .callout.gold{ background:#fff6e6; border:1.6pt solid var(--gold); }
+  .callout.gold h2{ color:#8a5a05; border-bottom-color:var(--gold); }
+  .callout h2{ font-family:'Arial',sans-serif; font-size:16.5pt; margin:0 0 3mm 0; padding-bottom:3mm;
+    border-bottom:2.6pt solid; font-weight:800; }
+  .callout p{ font-size:12.3pt; line-height:1.45; margin:2mm 0; text-align:justify; }
+  .callout ul{ font-size:12pt; line-height:1.5; padding-left:5mm; margin:2mm 0; }
+  .callout ul li{ margin-bottom:2mm; }
+  .big-fig{ background:var(--panel); border:1px solid var(--line); border-radius:3mm; padding:8mm; text-align:center; }
+  .big-fig h2{ font-family:'Arial',sans-serif; font-size:16.5pt; color:var(--navy); margin:0 0 3mm 0;
+    border-bottom:2.6pt solid var(--navy); padding-bottom:3mm; font-weight:800; text-align:left; }
+  .big-fig img{ width:100%; height:150mm; object-fit:contain; background:#fff; }
+  .big-fig figcaption{ font-family:'Arial',sans-serif; font-size:9.8pt; color:#556; text-align:left; margin-top:2mm; }
+
+  /* Limitations full width */
+  .limits{ margin-top:10mm; background:#fff; border:1px solid var(--line); border-left:4pt solid #7a869a;
+    border-radius:2mm; padding:7mm 10mm; }
+  .limits h2{ font-family:'Arial',sans-serif; font-size:15pt; color:#48525e; margin:0 0 3mm 0; font-weight:800; }
+  .limits ul{ font-family:'Arial',sans-serif; columns:2; column-gap:14mm; font-size:11.3pt; line-height:1.5; margin:0; padding-left:5mm; }
+  .limits ul li{ margin-bottom:2mm; break-inside:avoid; }
+
+  /* Footer */
+  .footer{ margin-top:10mm; background:var(--navy); color:#fff; border-radius:3mm 3mm 0 0; padding:9mm 20mm;
+    display:flex; justify-content:space-between; align-items:center; font-family:'Arial',sans-serif; }
+  .footer .left{ max-width:560mm; }
+  .footer h3{ margin:0 0 2mm 0; font-size:15pt; color:var(--gold); }
+  .footer p{ margin:1mm 0; font-size:11.5pt; line-height:1.5; color:#dbe4f4; }
+  .footer code{ background:rgba(255,255,255,0.12); padding:0.5mm 2mm; border-radius:1mm; font-size:11pt; }
+  .footer .qrbox{ text-align:center; background:#fff; border-radius:3mm; padding:4mm; }
+  .footer .qrbox img{ width:34mm; height:34mm; display:block; }
+  .footer .qrbox span{ font-size:8.5pt; color:#333; display:block; margin-top:1.5mm; }
+  .bottombar{ background:#0d2a52; color:#a9bbdb; font-family:'Arial',sans-serif; font-size:10pt; text-align:center;
+    padding:5mm; letter-spacing:0.4px; }
+</style>
+</head>
+<body>
+
+<div data-document-role="page" data-label="A0 Poster — CNCM I-745 Digital Twin">
+  <div class="banner">
+    <div class="kicker">Computational Biology &middot; Genome-Scale Metabolic Modelling</div>
+    <div class="title">A Mechanistic Digital Twin of <i>Saccharomyces boulardii</i> CNCM I-745</div>
+    <div class="authors-row">
+      <div>
+        <div class="authors">Inderpreet Singh &nbsp;&middot;&nbsp; Niraj Sunil Deshmukh</div>
+        <div class="affil">Indian Institute of Science Education and Research (IISER) Tirupati &nbsp;|&nbsp; ASM Global Research Symposium 2026</div>
+      </div>
+      <div class="banner-badges">
+        <div class="badge"><b>6</b>model layers</div>
+        <div class="badge"><b>4,105</b>Yeast9 reactions</div>
+        <div class="badge"><b>52,800</b>posterior draws</div>
+        <div class="badge"><b>0.987</b>surrogate R&sup2;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <div class="intro">
+      <h2>Background &amp; rationale</h2>
+      <p><i>S. boulardii</i> CNCM I-745 is a probiotic yeast used clinically against <i>Clostridioides difficile</i>-associated and antibiotic-associated diarrhoea. Despite decades of clinical use, its strain-specific metabolism has never been mechanistically modelled &mdash; clinical dosing has run ahead of a mechanistic understanding of what this strain can and cannot do metabolically inside the gut. We built the first six-layer digital twin of this organism, spanning comparative genomics, a strain-specific genome-scale metabolic model, gut-zone-resolved metabolism, host toxin-kinetics, a machine-learning surrogate for fast querying, and a two-species competition model against <i>C. difficile</i> &mdash; testing whether the strain carries a hidden metabolic deficit relative to reference <i>S. cerevisiae</i>, and whether its probiotic dosing behaviour can be predicted rather than assumed.</p>
+    </div>
+
+    <div class="grid3">
+
+      <div class="panel">
+        <div class="layer-tag">Layer 1</div>
+        <h2>Comparative genomics</h2>
+        <p>8 <i>S. boulardii</i> assemblies screened, 6 qualifying, benchmarked against the S288C reference (17 sequences, 12.16 Mb, N50 924 kb) and a 63-gene control panel (100% recovered). 21 of 26 testable literature-reported gene absences were confirmed across all 6 assemblies; a 5-gene, 2-copy introgressed cluster was identified at 98.9&ndash;100% identity (positions 910,215&ndash;942,416).</p>
+        <figure>
+          <img src="https://raw.githubusercontent.com/nsdeshmukh306-ai/cncm-i745-digital-twin/main/figures/figure1_genomics.png" alt="Figure 1">
+          <figcaption><b>Figure 1.</b> Comparative genomics: assembly quality, control-panel recovery, and the confirmed gene-absence / introgression signature.</figcaption>
+        </figure>
+        <div class="stat-row">
+          <div class="stat"><b>21 / 26</b>absences confirmed</div>
+          <div class="stat"><b>63 / 63</b>controls recovered</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="layer-tag">Layer 2</div>
+        <h2>Strain-specific metabolic model</h2>
+        <p>The Yeast9 consensus model (4,105 reactions, 2,748 metabolites, 1,143 genes) was edited with 14 GPR rule changes (6 reactions deleted, 8 rewritten) reflecting 10 genes absent in this strain. Tested on 12 carbon/nitrogen sources, only trehalose utilisation was lost (growth rate 1.639 &rarr; 0 mmol gDW<sup>&minus;1</sup> h<sup>&minus;1</sup>); all 11 other substrates were unchanged, and gene essentiality was unchanged across all 1,143 genes.</p>
+        <figure>
+          <img src="https://raw.githubusercontent.com/nsdeshmukh306-ai/cncm-i745-digital-twin/main/figures/figure2_gem.png" alt="Figure 2">
+          <figcaption><b>Figure 2.</b> Strain-specific GEM: GPR edits, phenotype panel, and essentiality comparison against the base model.</figcaption>
+        </figure>
+        <div class="stat-row">
+          <div class="stat"><b>14</b>GPR edits</div>
+          <div class="stat"><b>1 / 12</b>substrates changed</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="layer-tag">Layer 3</div>
+        <h2>Gut-zone metabolism</h2>
+        <p>The model was constrained per gut zone across 2,678 reactions (2,677 GPR-mapped). Zone-specific growth rates were 0.084 h<sup>&minus;1</sup> (duodenum), 0.136 h<sup>&minus;1</sup> (ileum), and 0.026 h<sup>&minus;1</sup> (colon), with 500&ndash;520 genes differentially significant per pairwise zone contrast. Gastric-survival bioenergetics, modelled via a proton-pumping cost term, identified a lethal membrane-leak threshold at pH 2.</p>
+        <figure>
+          <img src="https://raw.githubusercontent.com/nsdeshmukh306-ai/cncm-i745-digital-twin/main/figures/figure3_zones.png" alt="Figure 3">
+          <figcaption><b>Figure 3.</b> Zone-resolved growth rates and gastric-survival bioenergetics across the leak-rate / pH grid.</figcaption>
+        </figure>
+        <div class="stat-row">
+          <div class="stat"><b>0.026&ndash;0.136</b>&mu; range (h<sup>&minus;1</sup>)</div>
+          <div class="stat"><b>&gt;500</b>genes / contrast</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="layer-tag">Layer 4</div>
+        <h2>Host toxin-A kinetics</h2>
+        <p>Bayesian MCMC calibration (affine-invariant sampler, 52,800 posterior draws) of toxin-A proteolysis kinetics gave a median half-life of 0.83 h (95% credible interval 0.58&ndash;1.23 h), with 74.6% of degradation attributable to protease activity. Sobol sensitivity analysis of an NF-&kappa;B signalling module identified <i>k</i><sub>sup</sub> as the dominant parameter (S1 = 0.869, S<sub>T</sub> = 0.881).</p>
+        <figure>
+          <img src="https://raw.githubusercontent.com/nsdeshmukh306-ai/cncm-i745-digital-twin/main/figures/figure4_kinetics.png" alt="Figure 4">
+          <figcaption><b>Figure 4.</b> Posterior kinetic parameters and Sobol sensitivity ranking for the NF-&kappa;B module.</figcaption>
+        </figure>
+        <div class="stat-row">
+          <div class="stat"><b>0.83 h</b>toxin-A half-life</div>
+          <div class="stat"><b>52,800</b>MCMC draws</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="layer-tag">Layer 5</div>
+        <h2>Machine-learning surrogate</h2>
+        <p>A 5-member MLP ensemble and baseline models (random forest, gradient boosting, ridge) were trained on 2,000 simulations and cross-validated on 400 held-out points. Random forest performed best (R&sup2; = 0.987 &plusmn; 0.009), MLP ensemble R&sup2; = 0.977 &plusmn; 0.015. The surrogate gives a 53,120&times; speed-up over the LP solver (7.37 &mu;s vs. 391.6 ms per query, 94% coverage).</p>
+        <figure>
+          <img src="https://raw.githubusercontent.com/nsdeshmukh306-ai/cncm-i745-digital-twin/main/figures/figure5_surrogate.png" alt="Figure 5">
+          <figcaption><b>Figure 5.</b> Cross-validated surrogate accuracy (R&sup2;, n = 400 held-out points) and inference-speed comparison.</figcaption>
+        </figure>
+        <div class="stat-row">
+          <div class="stat"><b>0.987&plusmn;0.009</b>best R&sup2; (n=400)</div>
+          <div class="stat"><b>53,120&times;</b>speed-up</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="layer-tag">Layer 6</div>
+        <h2>Two-species competition</h2>
+        <p>A continuous-flow resource-competition ODE model of <i>S. boulardii</i> vs. <i>C. difficile</i> was run across a 256-condition dosing grid. A minimum effective dose of 0.05 (arbitrary units) achieved complete <i>C. difficile</i> exclusion and 100% toxin-A reduction in 208 of 256 conditions (48 coexistence outcomes); undosed toxin-A burden was 61.1 vs. 0 when dosed.</p>
+        <figure>
+          <img src="https://raw.githubusercontent.com/nsdeshmukh306-ai/cncm-i745-digital-twin/main/figures/figure6_competition.png" alt="Figure 6">
+          <figcaption><b>Figure 6.</b> Dosing-grid outcomes: exclusion vs. coexistence, and toxin-A burden with and without dosing.</figcaption>
+        </figure>
+        <div class="stat-row">
+          <div class="stat"><b>208 / 256</b>exclusion outcomes</div>
+          <div class="stat"><b>100%</b>toxin-A reduction</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid3 row2">
+
+      <div class="callout maroon">
+        <h2>Key finding &mdash; a null result</h2>
+        <p>The strain-specific model is functionally near-identical to the reference consensus model: only 1 of 12 tested carbon/nitrogen sources differs, and gene essentiality is completely unchanged across all 1,143 genes (0 gained, 0 lost).</p>
+        <p><b>This is a clinically reassuring null result, not a discovered deficiency</b> &mdash; CNCM I-745 carries no major hidden metabolic liability relative to reference <i>S. cerevisiae</i>, beyond its known loss of trehalose utilisation.</p>
+      </div>
+
+      <div class="big-fig">
+        <h2>Integration &mdash; all six layers</h2>
+        <img src="https://raw.githubusercontent.com/nsdeshmukh306-ai/cncm-i745-digital-twin/main/figures/figure7_integration.png" alt="Figure 7">
+        <figcaption><b>Figure 7.</b> How genome-level differences propagate through the metabolic model, gut-zone constraints, host kinetics, the ML surrogate, and the competition model to a single dosing recommendation.</figcaption>
+      </div>
+
+      <div class="callout gold">
+        <h2>Falsifiable predictions</h2>
+        <ul>
+          <li>Trehalose-free medium should reduce CNCM I-745 growth to zero while leaving the reference strain unaffected.</li>
+          <li>Predicted toxin-A half-life of 0.83 h should be directly testable by an ELISA time-course.</li>
+          <li>The predicted minimum effective dose threshold (0.05, grid units) should be testable in gnotobiotic mouse dosing studies.</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="limits">
+      <h2>Limitations</h2>
+      <ul>
+        <li>Steady-state flux balance analysis (FBA / pFBA) does not capture dynamic regulation.</li>
+        <li>The NF-&kappa;B module is prior-predictive only (n = 3,072 prior draws), not yet calibrated to host expression data.</li>
+        <li>The 8-genome comparative panel limits statistical power (exact McNemar test on 6 paired observations, p = 1.0).</li>
+        <li>The competition model uses idealised continuous-flow kinetics and has not yet been validated <i>in vivo</i>.</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="left">
+      <h3>Data &amp; code availability</h3>
+      <p><code>github.com/nsdeshmukh306-ai/cncm-i745-digital-twin</code> &mdash; public repository, MIT licence.</p>
+      <p>Every number on this poster is generated programmatically from result files, not hand-typed.</p>
+    </div>
+    <div class="qrbox">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAV4AAAFeAQAAAADlUEq3AAACs0lEQVR4nO2bS4rkMAyGf40NtXRBH6CPkrrBHKmv5hylD9CQLAsc/lnIrxQM9BRUowF5EerxLQRCj19yhPj2OX59nwUc/hkYzP0TWUBu0AeAQCws7f9UjNjs8AOcSJIFwH6h3ADILZHMOIQZAEmS2ZLNDp/gQ0SuANb3uzAjUH/72Bq0isjrzXD4KTjOX/YLBekuXAUg8Fgjjdjs8F/hdBcsW6B8sEBEIjQ4f9gMh/8VDmytC8C8R2C9BjKnUvucheTrzXD4WXgXEZGWTmsxPATQByAiInKzZLPD43Cc3LvSRXVF4Om4mrAIgzlVxddEQyCWLcwOrf+6By3CNdRUQyQS6NUPiVXRL5t62ojNDp+ONiw91GrXkqjdjQZiTppZjdjs8Hwils8LAdXxgKzXr0gA0C4Gu4DY44vNcPhpuM5AtXUhiYUkuYWeQEPzr2dRk3AdZWcEjhl3q4itLGqOdQ+ahKfdhIZf7UBrGzqkvtdBo3DLoluNwdqapqErqpNdTRiFtducat4s5guGzHA1YRSeYhA6IWWpXh0bXteDhuF5KT/aUA069CpZ2xkjNjt8Os2DoWuI2oGiLi2qUPQYNApj+EhLoJZFDcSmEVs+NWKzw6fT1EQ4Fb7ut+5Gj0GjcOtaUqkT0hqDbSTKJjM8Bo3CfbLN06J+TLaBnl7dg1bhwH4brSXQPUJuqUBugF66eL0ZDj8Fn3b0rfls6yQOMQ+fixqFT3e2t77mxdj6lrFCNGKzww9wv0yxvt8Fy6dI04OHQBtS3w/ahSOAIwLpC8B+IbCHAuyxyMIjcr0JAITyWjMcfhpGL3LolynmezKnfGrEZofn83jrHtjfKEhfkevvIxI4BMv2BvrbZzZhjEuFdS66ze+cDVHonYxReO5F82me3e6vtWm3z2RswuLv8P7n8B8KyHkUqET+HwAAAABJRU5ErkJggg==" alt="QR code to repository">
+      <span>Scan for code &amp; data</span>
+    </div>
+  </div>
+  <div class="bottombar">&copy; 2026 &nbsp;Singh &amp; Deshmukh &nbsp;&middot;&nbsp; IISER Tirupati &nbsp;&middot;&nbsp; MIT Licence</div>
+</div>
+
+</body>
+</html>
